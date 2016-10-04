@@ -19,21 +19,23 @@ public class PythagoreanTriplet {
     private long product;
 
     public PythagoreanTriplet(int sum) {
-        int sumSq = sum*sum;
-        for(int i=sum/2+1;i<sum;i++) {
-            if(sumSq%(2*i)==0) {
-                a = sum - sumSq/(2*i);
-                b = sum - i;
-                c = (int) Math.sqrt(a*a+b*b);
+        int sumSq = sum * sum;
 
-                product = a*b*c;
-                break;
-            }
+        int i = sum / 2 + 1;
+        while (sumSq % (2 * i) != 0 && i < sum) {
+            i++;
         }
+
+        a = sum - sumSq / (2 * i);
+        b = sum - i;
+        c = (int) Math.sqrt(a * a + b * b);
+
+        product = a * b * c;
     }
 
+
     public static void main(String[] args) {
-        PythagoreanTriplet t = new PythagoreanTriplet(1000);
+        PythagoreanTriplet t = new PythagoreanTriplet(9);
 
         System.out.println(t.get());
     }
