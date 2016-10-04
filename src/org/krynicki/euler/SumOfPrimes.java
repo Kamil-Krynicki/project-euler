@@ -6,6 +6,10 @@ import java.util.Arrays;
  * Created by kamil.krynicki on 04/10/2016.
  */
 public class SumOfPrimes {
+    /*
+    * The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
+    * Find the sum of all the primes below two million.
+    */
     private boolean[] primes;
     private long result;
 
