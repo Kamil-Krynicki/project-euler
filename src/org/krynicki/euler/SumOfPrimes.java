@@ -24,7 +24,7 @@ public class SumOfPrimes {
 
         int sieve = 2;
 
-        while (sieve <= n/2) {
+        while (sieve <= Math.sqrt(n)) {
             while (!primes[++sieve]) {}
 
             for (int i = 2*sieve; i < n; i += sieve) {
