@@ -1,9 +1,9 @@
 package org.krynicki.euler;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -24,6 +24,8 @@ public class LongestCollatzSequence {
     * Which starting number, under one million, produces the longest chain?
     */
 
+    private static final Deque<Long> CURRENT_WORK = new ArrayDeque<>(1024);
+
     public static void main(String[] args) {
         LongestCollatzSequence l = new LongestCollatzSequence();
 
@@ -34,53 +36,59 @@ public class LongestCollatzSequence {
         System.out.println(t2 - t1);
     }
 
-    private Map<Integer, Integer> memo;
+    private Map<Long, Integer> memo;
 
-    public int longestCollatz(int start) {
-        memo = new HashMap<>();
-        memo.put(1, 1);
+    public long longestCollatz(int max) {
+        memo = new HashMap<Long, Integer>(max);
+        memo.put(1l, 1);
 
 
-        Deque<Integer> currentWork = new LinkedList<>();
+        for (int i = 2; i < max; i++) {
+            collatzDp(i);
+        }
 
-        for (int i = 2; i < start; i++) {
-            if (memo.containsKey(i)) continue;
-            currentWork.push(i);
-            while (!currentWork.isEmpty()) {
-                int current = currentWork.peek();
-                int next = next(current);
-                if (!memo.containsKey(next)) {
-                    currentWork.push(next);
-                } else {
-                    memo.put(currentWork.pop(), memo.get(next) + 1);
-                }
+        int maxLen = Collections.max(memo.values());
+
+        for (Map.Entry<Long, Integer> el : memo.entrySet()) {
+            if (el.getValue() == maxLen) {
+                return el.getKey();
             }
         }
 
-        return Collections.max(memo.values());
+        return -1;
     }
 
-    private int collatzDP(int val) {
-        if (!memo.containsKey(val)) {
-            memo.put(val, collatzDP(next(val)) + 1);
+    private int collatzDp(long val) {
+        Integer result = memo.get(val);
+        if (result == null) {
+            result = collatzDp(next(val)) + 1;
+            memo.put(val, result);
         }
-        return memo.get(val);
+        return result;
     }
 
-    private int next(int n) {
-        if (n % 2 == 0) return n >> 1;
+    private int collatzDpNonRecursive(long val) {
+        long current = val;
+
+        CURRENT_WORK.clear();
+
+        while (!memo.containsKey(current)) {
+            CURRENT_WORK.push(current);
+            current = next(current);
+        }
+
+        int result = memo.get(current);
+
+        while (!CURRENT_WORK.isEmpty()) {
+            memo.put(CURRENT_WORK.pop(), ++result);
+        }
+
+        return result;
+
+    }
+
+    private long next(long n) {
+        if ((n & 1) == 0) return n >> 1;
         else return (n << 2) - n + 1; // speeeeed!
     }
-
-    //            currentWork.push(i);
-    //      while(!currentWork.isEmpty()) {
-    //    int current = currentWork.peek();
-    //    int next = next(current);
-    //    if (!memo.containsKey(next)) {
-    //        currentWork.push(next);
-    //    }
-    //    else {
-    //        memo.put(currentWork.pop(), memo.get(next) + 1);
-    //    }
-    //}
 }
