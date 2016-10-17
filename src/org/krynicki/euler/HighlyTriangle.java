@@ -38,14 +38,14 @@ public class HighlyTriangle {
         int increase = 1;
         long currentNumber = 0;
 
-        while(coundDivisors(currentNumber) < divisors) {
+        while(countDivisors(currentNumber) < divisors) {
             currentNumber+=increase++;
         }
 
         return currentNumber;
     }
 
-    private int coundDivisors(long currentNumber) {
+    private int countDivisors(long currentNumber) {
         Map<Integer, Integer> factors = new HashMap<>();
 
         int factor = 2;
