@@ -3,7 +3,7 @@ package org.krynicki.euler;
 /**
  * Created by kamil.krynicki on 20/10/2016.
  */
-public class PowerDigits {
+public class Problem30_PowerDigits {
     /*
     Surprisingly there are only three numbers that can be written as the sum of fourth powers of their digits:
 
@@ -21,7 +21,7 @@ public class PowerDigits {
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
 
-        PowerDigits f = new PowerDigits(5);
+        Problem30_PowerDigits f = new Problem30_PowerDigits(5);
         int sum = 0;
         for(int i=2;i<f.maxDigitPowerSum();i++) {
             if(i == f.sumDigitPowers(i)) {
@@ -36,7 +36,7 @@ public class PowerDigits {
 
     private int[] powers;
 
-    public PowerDigits(int power) {
+    public Problem30_PowerDigits(int power) {
         powers = new int[10];
 
         for (int i = 1; i < 10; i++) {
