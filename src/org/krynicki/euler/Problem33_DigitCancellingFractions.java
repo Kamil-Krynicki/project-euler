@@ -3,7 +3,7 @@ package org.krynicki.euler;
 /**
  * Created by kamil.krynicki on 21/10/2016.
  */
-public class Problem33DigitCancellingFractions {
+public class Problem33_DigitCancellingFractions {
     /*
     The fraction 49/98 is a curious fraction, as an inexperienced mathematician in attempting to simplify it may
     incorrectly believe that 49/98 = 4/8, which is correct, is obtained by cancelling the 9s.
