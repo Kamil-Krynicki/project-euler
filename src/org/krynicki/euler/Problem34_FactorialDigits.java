@@ -20,12 +20,12 @@ public class Problem34_FactorialDigits {
         FactorialDigits f = new FactorialDigits();
 
         int sum = 0;
-        for(int i=3;i<f.maxDigitFactorialSum();i++) {
-            if(i == f.sumDigitFactorials(i)) {
-                sum +=i;
+        for (int i = 3; i < f.maxDigitFactorialSum(); i++) {
+            if (i == f.sumDigitFactorials(i)) {
+                sum += i;
             }
         }
-        System.out.println("Sum of digits is "+sum);
+        System.out.println("Sum of digits is " + sum);
 
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
@@ -40,8 +40,8 @@ public class Problem34_FactorialDigits {
 
             factorials[0] = 1;
             factorials[1] = 1;
-             for (int i = 2; i < 10; i++) {
-                factorials[i] = factorials[i-1]*i;
+            for (int i = 2; i < 10; i++) {
+                factorials[i] = factorials[i - 1] * i;
             }
         }
 
