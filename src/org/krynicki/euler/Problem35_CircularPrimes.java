@@ -23,6 +23,7 @@ public class Problem35_CircularPrimes {
 
     // observation - the digits of the number must not be even
     // observation - EXCEPT 2
+    // observation - and 5 appears only once
 
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
@@ -38,9 +39,10 @@ public class Problem35_CircularPrimes {
 
     public static class CircularPrimes {
         private Map<Integer, Boolean> isPrime = new HashMap<>();
+        private int[] pows = {1, 10, 100, 1000, 10000, 100000, 1000000};
 
         public Set<Integer> getCircularPrimes(int limit) {
-            CombinationGenerator c = new CombinationGenerator(new int[]{1, 3, 5, 7, 9});
+            CombinationGenerator c = new CombinationGenerator(new int[]{1, 3, 7, 9});
 
             Set<Integer> result = new HashSet<>();
             int next;
@@ -50,6 +52,7 @@ public class Problem35_CircularPrimes {
                     result.add(next);
 
             result.add(2);
+            result.add(5);
             result.remove(1);
 
             return result;
@@ -79,10 +82,9 @@ public class Problem35_CircularPrimes {
         }
 
         private int rot(int number) {
-            int result = number / 10;
-            result += (number % 10) * Math.pow(10, Math.floor(Math.log10(number)));
-            return result;
+            return (number % 10) * pows[(int)Math.log10(number)] + number / 10;
         }
+
     }
 
     public static class CombinationGenerator {
