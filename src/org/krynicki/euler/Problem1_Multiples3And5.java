@@ -3,7 +3,7 @@ package org.krynicki.euler;
 /**
  * Created by K on 2016-09-28.
  */
-public class Multiples3And5 {
+public class Problem1_Multiples3And5 {
 
     /*
     * If we list all the natural numbers below 10 that are multiples of 3 or 5,
@@ -19,7 +19,7 @@ public class Multiples3And5 {
 
 
     static public void main(String[] args) {
-        Multiples3And5 tester = new Multiples3And5();
+        Problem1_Multiples3And5 tester = new Problem1_Multiples3And5();
 
         System.out.println(tester.sumMultiples(3, 1000) + tester.sumMultiples(5, 1000) - tester.sumMultiples(15, 1000));
     }
