@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by kamil.krynicki on 11/10/2016.
  */
-public class PathInTriangle {
+public class Problem18_PathInTriangle {
     /*
         By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
 
@@ -78,14 +78,14 @@ public class PathInTriangle {
         long t2 = System.currentTimeMillis();
         System.out.print(t2-t1);
 
-        PathInTriangle pathInTriangle = new PathInTriangle(in);
+        Problem18_PathInTriangle pathInTriangle = new Problem18_PathInTriangle(in);
         pathInTriangle.maxPath();
     }
 
     private short[][] values;
     private int[][] memo;
 
-    public PathInTriangle(List<List<Short>> in) {
+    public Problem18_PathInTriangle(List<List<Short>> in) {
         int rowCount = in.size();
 
         this.values = new short[rowCount][];

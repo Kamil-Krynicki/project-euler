@@ -5,7 +5,7 @@ import java.math.BigInteger;
 /**
  * Created by K on 2016-10-10.
  */
-public class PowerDigitSum {
+public class Problem15_PowerDigitSum {
     /*
     215 = 32768 and the sum of its digits is 3 + 2 + 7 + 6 + 8 = 26.
 
@@ -14,14 +14,14 @@ public class PowerDigitSum {
 
     public static void main(String[] args){
         long t1 = System.currentTimeMillis();
-        PowerDigitSum p = new PowerDigitSum(1000);
+        Problem15_PowerDigitSum p = new Problem15_PowerDigitSum(1000);
         long t2 = System.currentTimeMillis();
 
         System.out.println(t2 - t1);
     }
 
 
-    public PowerDigitSum(int n){
+    public Problem15_PowerDigitSum(int n){
         BigInteger val = BigInteger.valueOf(2).pow(n);
 
         BigInteger[] tmp;
