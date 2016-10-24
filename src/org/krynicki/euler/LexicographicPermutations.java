@@ -19,10 +19,10 @@ public class LexicographicPermutations {
     public static void main(String[] args) throws IOException {
         int[] nums = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-        LexicographicPermutations n = new LexicographicPermutations();
+        PermutationsGenerator n = new PermutationsGenerator();
 
         long t1 = System.currentTimeMillis();
-        for (int i = 1; i < 10000000; i++) {
+        for (int i = 1; i < 1000000; i++) {
             n.next(nums);
         }
         long t2 = System.currentTimeMillis();
@@ -31,37 +31,59 @@ public class LexicographicPermutations {
         System.out.println(Arrays.toString(nums));
     }
 
-    public void next(int[] nums) {
-        int p = nums.length - 2;
-        while(p >= 0 && nums[p] > nums[p + 1]) {
-            p--;
+    public static class PermutationsGenerator {
+        public void next(int[] nums) {
+            int p = nums.length - 2;
+            while(p >= 0 && nums[p] > nums[p + 1]) {
+                p--;
+            }
+
+            if(p < 0) {
+                reverse(nums, 0, nums.length - 1); // closes loop
+                return;
+            }
+
+            int q = nums.length - 1;
+            while(nums[q] < nums[p]) {
+                q--;
+            }
+
+            swap(nums, p, q);
+            reverse(nums, p + 1, nums.length - 1);
         }
 
-        if(p < 0) {
-            reverse(nums, 0, nums.length - 1); // closes loop
-            return;
+        public void prv(int[] nums) {
+            int p = nums.length - 2;
+            while(p >= 0 && nums[p] < nums[p + 1]) {
+                p--;
+            }
+
+            if(p < 0) {
+                reverse(nums, 0, nums.length - 1); // closes loop
+                return;
+            }
+
+            int q = nums.length - 1;
+            while(nums[q] > nums[p]) {
+                q--;
+            }
+
+            swap(nums, p, q);
+            reverse(nums, p + 1, nums.length - 1);
         }
 
-        int q = nums.length - 1;
-        while(nums[q] < nums[p]) {
-            q--;
+        private void reverse(int[] nums, int left, int right) {
+            while (left < right) {
+                swap(nums, left, right);
+                left++;
+                right--;
+            }
         }
 
-        swap(nums, p, q);
-        reverse(nums, p + 1, nums.length - 1);
-    }
-
-    public void reverse(int[] nums, int left, int right) {
-        while (left < right) {
-            swap(nums, left, right);
-            left++;
-            right--;
+        private void swap(int[] nums, int p, int q) {
+            int temp = nums[p];
+            nums[p] = nums[q];
+            nums[q] = temp;
         }
-    }
-
-    private void swap(int[] nums, int p, int q) {
-        int temp = nums[p];
-        nums[p] = nums[q];
-        nums[q] = temp;
     }
 }

@@ -28,7 +28,7 @@ public class PandigitalProducts {
         int[] nums = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         int[] init = Arrays.copyOf(nums, 9);
 
-        LexicographicPermutations permGen = new LexicographicPermutations();
+        LexicographicPermutations.PermutationsGenerator permGen = new LexicographicPermutations.PermutationsGenerator();
 
         Set<Integer> result = new HashSet<>();
 
