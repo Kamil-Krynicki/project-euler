@@ -84,7 +84,6 @@ public class Problem35_CircularPrimes {
         private int rot(int number) {
             return (number % 10) * pows[(int)Math.log10(number)] + number / 10;
         }
-
     }
 
     public static class CombinationGenerator {
