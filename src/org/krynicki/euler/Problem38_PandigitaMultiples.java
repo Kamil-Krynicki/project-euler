@@ -23,13 +23,13 @@ public class Problem38_PandigitaMultiples {
     */
 
     public static void main(String[] args) throws IOException {
-        int[] nums = {9, 1, 8, 2, 7, 5, 6, 7, 8, 9};
+        int[] nums = {1, 9, 2, 3, 8, 4, 5, 7, 6};
 
         PermutationsGenerator n = new PermutationsGenerator();
 
         long t1 = System.currentTimeMillis();
         for (int i = 1; i < 100; i++) {
-            dupa(nums, 1);
+            System.out.println(dupa(nums, 3));
             n.prv(nums);
         }
         long t2 = System.currentTimeMillis();
@@ -40,7 +40,7 @@ public class Problem38_PandigitaMultiples {
 
     private int[] pows = {1, 10, 100, 1000, 10000, 100000, 1000000};
 
-    private static int dupa(int[] nums, int firstEnd) {
+    private static boolean dupa(int[] nums, int firstEnd) {
         int val = convert(nums, 0, firstEnd);
 
         int i = 2;
@@ -48,13 +48,14 @@ public class Problem38_PandigitaMultiples {
         int currentStep = (int) (Math.log10(val) + 1);
         do {
             len = (int) (Math.log10(i * val) + 1);
+            if((convert(nums, currentStep, len) != i * val)) {
+                return false;
+            }
             i++;
             currentStep += len;
-        } while ((convert(nums, currentStep, len) == i * val) && (currentStep < nums.length));
+        } while ( currentStep < nums.length);
 
-        System.out.println(check(nums, val, 0));
-
-        return 0;
+        return true;
     }
 
     public static int convert(int[] values, int start, int len) {
