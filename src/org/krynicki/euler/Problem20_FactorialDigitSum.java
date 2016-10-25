@@ -16,7 +16,7 @@ public class Problem20_FactorialDigitSum {
      */
 
     public static void main(String[] args) {
-        FactorialDigitSum f = new FactorialDigitSum();
+        Problem20_FactorialDigitSum f = new Problem20_FactorialDigitSum();
 
         System.out.print(f.sumDigits(f.factorial(100)));
     }

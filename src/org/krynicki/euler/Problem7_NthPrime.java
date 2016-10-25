@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Problem7_NthPrime {
     private List<Long> primes;
-    public NthPrime(int n) {
+    public Problem7_NthPrime(int n) {
         primes = new ArrayList<>(n);
 
         primes.add(2l);
@@ -35,7 +35,7 @@ public class Problem7_NthPrime {
     }
 
     public static void main(String[] args) {
-        NthPrime t = new NthPrime(10001);
+        Problem7_NthPrime t = new Problem7_NthPrime(10001);
 
         System.out.println(t.get());
     }

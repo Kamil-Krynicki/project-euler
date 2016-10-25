@@ -20,7 +20,7 @@ public class Problem40_Champernowes {
 
         int result = 1;
         long t1 = System.nanoTime();
-        Champernowes c = new Champernowes();
+        Champernownes c = new Champernownes();
         for(int i=1;i<=1E6;i*=10)
         {
             result=c.getDigit(i);
@@ -31,11 +31,11 @@ public class Problem40_Champernowes {
 
     }
 
-    public static class Champernowes {
+    public static class Champernownes {
         int[] numbersPerDigitLen;
         int[] base;
 
-        public Champernowes() {
+        public Champernownes() {
             this.base = new int[9];
             this.base[0] = 0;
             this.base[1] = 10;
