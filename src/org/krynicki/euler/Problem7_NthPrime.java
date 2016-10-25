@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by kamil.krynicki on 03/10/2016.
  */
-public class NthPrime {
+public class Problem7_NthPrime {
     private List<Long> primes;
     public NthPrime(int n) {
         primes = new ArrayList<>(n);
