@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Created by K on 2016-10-24.
  */
-public class Problem38_IntegerRightTriangles {
+public class Problem39_IntegerRightTriangles {
     /*
     If p is the perimeter of a right angle triangle with integral length sides, {a,b,c}, there are exactly three solutions for p = 120.
 
