@@ -23,39 +23,41 @@ public class Problem38_PandigitaMultiples {
     */
 
     public static void main(String[] args) throws IOException {
-        int[] nums = {1, 9, 2, 3, 8, 4, 5, 7, 6};
+        int[] nums = {9, 8, 7, 6, 5, 4, 3, 2, 1};
 
         PermutationsGenerator n = new PermutationsGenerator();
 
         long t1 = System.currentTimeMillis();
-        for (int i = 1; i < 100; i++) {
-            System.out.println(dupa(nums, 3));
+        int k=0;
+        while (!decomposesToConcatenation(nums, 3*k+1)) {
             n.prv(nums);
+            k = ++k%2;
         }
         long t2 = System.currentTimeMillis();
-
         System.out.println(t2 - t1);
+
+
         System.out.println(Arrays.toString(nums));
     }
 
-    private int[] pows = {1, 10, 100, 1000, 10000, 100000, 1000000};
-
-    private static boolean dupa(int[] nums, int firstEnd) {
-        int val = convert(nums, 0, firstEnd);
-
-        int i = 2;
-        int len;
-        int currentStep = (int) (Math.log10(val) + 1);
+    private static boolean decomposesToConcatenation(int[] nums, int firstElement) {
+        int val = convert(nums, 0, firstElement);
+        int len = len(val);
+        int currentStep = len;
         do {
-            len = (int) (Math.log10(i * val) + 1);
-            if((convert(nums, currentStep, len) != i * val)) {
+            val += val;
+            len = len(val);
+            if ((val != convert(nums, currentStep, len))) {
                 return false;
             }
-            i++;
             currentStep += len;
-        } while ( currentStep < nums.length);
+        } while (currentStep < nums.length);
 
         return true;
+    }
+
+    private static int len(int val) {
+        return (int) (Math.log10(val) + 1);
     }
 
     public static int convert(int[] values, int start, int len) {
@@ -66,16 +68,4 @@ public class Problem38_PandigitaMultiples {
         }
         return result;
     }
-
-    public static boolean check(int[] values, int value, int start) {
-        char[] digitArray = Integer.toString(value).toCharArray();
-        for (int i = start; i < digitArray.length && i < values.length; i++) {
-            if ((digitArray[i] - 0x30) != values[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
 }
