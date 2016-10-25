@@ -32,6 +32,15 @@ public class LexicographicPermutations {
     }
 
     public static class PermutationsGenerator {
+        public static int convert(int[] values, int start, int len) {
+            int result = 0;
+            for (int i = start; i < start + len && i < values.length; i++) {
+                result *= 10;
+                result += values[i];
+            }
+            return result;
+        }
+
         public void next(int[] nums) {
             int p = nums.length - 2;
             while(p >= 0 && nums[p] > nums[p + 1]) {
