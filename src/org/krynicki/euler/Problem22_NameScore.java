@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 /**
  * Created by kamil.krynicki on 14/10/2016.
  */
-public class NameScore {
+public class Problem22_NameScore {
 
     public static final int DOUBLE_QUOTES = 2 * 'A' - 2 * '"' - 2;
 
