@@ -21,11 +21,9 @@ public class Problem38_PandigitaMultiples {
 
     What is the largest 1 to 9 pandigital 9-digit number that can be formed as the concatenated product of an integer with (1,2, ... , n) where n > 1?
     */
-
+    private static PermutationsGenerator n = new PermutationsGenerator();
     public static void main(String[] args) throws IOException {
         int[] nums = {9, 8, 7, 6, 5, 4, 3, 2, 1};
-
-        PermutationsGenerator n = new PermutationsGenerator();
 
         long t1 = System.currentTimeMillis();
         int k=0;
@@ -36,18 +34,17 @@ public class Problem38_PandigitaMultiples {
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
 
-
         System.out.println(Arrays.toString(nums));
     }
 
     private static boolean decomposesToConcatenation(int[] nums, int firstElement) {
-        int val = convert(nums, 0, firstElement);
+        int val = n.convert(nums, 0, firstElement);
         int len = len(val);
         int currentStep = len;
         do {
             val += val;
             len = len(val);
-            if ((val != convert(nums, currentStep, len))) {
+            if ((val != n.convert(nums, currentStep, len))) {
                 return false;
             }
             currentStep += len;
@@ -60,12 +57,4 @@ public class Problem38_PandigitaMultiples {
         return (int) (Math.log10(val) + 1);
     }
 
-    public static int convert(int[] values, int start, int len) {
-        int result = 0;
-        for (int i = start; i < start + len && i < values.length; i++) {
-            result *= 10;
-            result += values[i];
-        }
-        return result;
-    }
 }

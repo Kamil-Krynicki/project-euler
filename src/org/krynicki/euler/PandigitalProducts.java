@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.krynicki.euler.LexicographicPermutations.PermutationsGenerator;
+
 /**
  * Created by K on 2016-10-20.
  */
@@ -23,12 +25,10 @@ public class PandigitalProducts {
 
     // observation 2: due to symmetry I only have to check the mentioned combinations and no other (i.e. no 1 and 4, for instance)
     // this results in 9x9999 + 99x999 tests, which is only <20 000
-
+    private static PermutationsGenerator permGen = new PermutationsGenerator();
     public static void main(String[] args) {
         int[] nums = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         int[] init = Arrays.copyOf(nums, 9);
-
-        LexicographicPermutations.PermutationsGenerator permGen = new LexicographicPermutations.PermutationsGenerator();
 
         Set<Integer> result = new HashSet<>();
 
@@ -48,9 +48,9 @@ public class PandigitalProducts {
     }
 
     private static int check(int[] nums, int splitA, int splitB) {
-        int val1 = convert(nums, 0, splitA);
-        int val2 = convert(nums, splitA, splitB);
-        int product = convert(nums, splitB, nums.length);
+        int val1 = permGen.convert(nums, 0, splitA);
+        int val2 = permGen.convert(nums, splitA, splitB - splitA);
+        int product = permGen.convert(nums, splitB, nums.length - splitB);
 
         if (val1 * val2 == product) {
             System.out.println(val1 + "x" + val2 + "=" + product);
@@ -58,14 +58,4 @@ public class PandigitalProducts {
         }
         return 0;
     }
-
-    public static int convert(int[] values, int start, int len) {
-        int result = 0;
-        for (int i = start; i < len; i++) {
-            result *= 10;
-            result += values[i];
-        }
-        return result;
-    }
-
 }
