@@ -5,7 +5,7 @@ import java.math.BigInteger;
 /**
  * Created by K on 2016-10-13.
  */
-public class FactorialDigitSum {
+public class Problem20_FactorialDigitSum {
     /*
     n! means n × (n − 1) × ... × 3 × 2 × 1
 
