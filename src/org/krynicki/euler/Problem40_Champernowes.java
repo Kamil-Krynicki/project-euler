@@ -23,7 +23,7 @@ public class Problem40_Champernowes {
         Champernownes c = new Champernownes();
         for(int i=1;i<=1E6;i*=10)
         {
-            result=c.getDigit(i);
+            result*=c.getDigit(i);
         }
         long t2 = System.nanoTime();
         System.out.println(result);
