@@ -36,7 +36,7 @@ public class Problem88_ProductSumNumbers {
 
         long t1 = System.currentTimeMillis();
 
-        for(int i=2;i<=1000;i++) {
+        for (int i = 2; i <= 12000; i++) {
             p.generate(i);
         }
 
@@ -48,52 +48,36 @@ public class Problem88_ProductSumNumbers {
     }
 
     private void generate(int k) {
-        //int[] values = new int[k];
-        //Arrays.fill(values, 1);
-
         int i = 0;
-        int maxSum;
-        int maxMul;
-        do {
-            maxSum = k;
-            maxMul = 1;
-            do {
-                i++;
-                maxSum++;
-                maxMul= (int)Math.pow(2,i);
-            } while (maxSum > maxMul);
-        } while (!redistribute(k, i, i, k, 1, k));
-    }
+        long maxSum = k;
+        long maxMul = 1;
 
-    boolean redistribute(int k, int max, int sum, int currentSum, int currentMul, int num) {
-        if (currentMul == currentSum) {
-           // System.out.println("FOUND");
-           // System.out.println("For k = "+num);
-           // //System.out.println("SUM = " + currentSum);
-           // System.out.println("MUL = " + currentMul);
-           // System.out.println(Arrays.toString(values));
-//
-            result.add(currentSum);
-          // memo.put(num, currentSum);
-
-            return true;
+        while (++maxSum > (maxMul<<=1)) {
+            i++;
         }
 
+        while (!redistribute(i, i, k, 1)) {
+            i++;
+        }
+    }
+
+    boolean redistribute(int max, int toDistribute, int currentSum, int currentMul) {
         int newSum = currentSum;
         int newMul = currentMul;
-        int newScope = sum;
+        int leftToDistribute = toDistribute;
 
-        for (int i = 2; i <= sum && i <= max; i++) {
+        for (int i = 2; i <= Math.min(toDistribute, max); i++) {
             newSum++;
-            newMul*=i;
-            newMul/=(i-1);
-            newScope--;
-            if(newSum >= newMul) {
-              //  values[k-1] = i;
-                if (redistribute(k - 1, i, newScope, newSum, newMul, num)) {
+            newMul /= (i - 1);
+            newMul *= i;
+            leftToDistribute--;
+            if (newSum > newMul) {
+                if (redistribute(i, leftToDistribute, newSum, newMul)) {
                     return true;
                 }
-             //   values[k-1] = i-1;
+            } else if (newSum == newMul) {
+                result.add(currentSum);
+                return true;
             }
         }
         return false;
