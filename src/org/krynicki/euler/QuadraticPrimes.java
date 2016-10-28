@@ -76,7 +76,10 @@ public class QuadraticPrimes {
 
     static class PrimeGenerator {
         private SortedSet<Integer> primes;
-        private int maxPrime;
+
+        public SortedSet<Integer> getPrimes() {
+            return primes;
+        }
 
         public PrimeGenerator(int size) {
             primes = new TreeSet<>();
@@ -88,7 +91,6 @@ public class QuadraticPrimes {
                 }
                 i += 2;
             }
-            maxPrime = primes.last();
         }
 
         public int nextPrime(int number) {
@@ -101,14 +103,13 @@ public class QuadraticPrimes {
             return primes.contains(number);
         }
 
-        private void expandBuffer(int number) {
-            if (number > maxPrime) {
-                for (int i = maxPrime; i < number; i += 2) {
+        public void expandBuffer(int number) {
+            if (number > primes.last()) {
+                for (int i = primes.last() + 2; i < number; i += 2) {
                     if (checkPrime(i)) {
                         primes.add(i);
                     }
                 }
-                maxPrime = primes.last();
             }
         }
 
