@@ -75,10 +75,30 @@ public class QuadraticPrimes {
     }
 
     static class PrimeGenerator {
-        private SortedSet<Integer> primes;
+        private TreeSet<Integer> primes;
 
         public SortedSet<Integer> getPrimes() {
             return primes;
+        }
+
+        public static PrimeGenerator getPrimesBelow(int to) {
+            PrimeGenerator result = new PrimeGenerator();
+
+            result.primes.add(2);
+            int i = 3;
+            while (i < to) {
+                if (result.checkPrime(i)) {
+                    result.primes.add(i);
+                }
+                i += 2;
+            }
+
+            return result;
+        }
+
+        public PrimeGenerator() {
+            primes = new TreeSet<>();
+
         }
 
         public PrimeGenerator(int size) {
