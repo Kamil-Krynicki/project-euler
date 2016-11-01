@@ -84,9 +84,10 @@ public class Problem49_PrimePermutations {
             for(int i=0;i<list.length;i++) {
                 for(int j=i+1;i<list.length;j++) {
                     int interval = list[j] - list[i];
-                    checkInterval(list, j+1, interval);
+                    //checkInterval(list, j+1, interval);
                 }
             }
+            return false;
         }
     }
 }

@@ -104,7 +104,8 @@ public class QuadraticPrimes {
         public PrimeGenerator(int size) {
             primes = new TreeSet<>();
             primes.add(2);
-            int i = 3;
+            primes.add(3);
+            int i = 5;
             while (primes.size() < size) {
                 if (checkPrime(i)) {
                     primes.add(i);
@@ -115,7 +116,14 @@ public class QuadraticPrimes {
 
         public int nextPrime(int number) {
             expandBuffer(number);
-            return primes.tailSet(number + 1).first();
+            try {
+                return primes.higher(number);
+
+            }
+            catch (NullPointerException ex) {
+                ex.printStackTrace();
+                return -1;
+            }
         }
 
         public boolean isPrime(int number) {
@@ -124,12 +132,12 @@ public class QuadraticPrimes {
         }
 
         public void expandBuffer(int number) {
-            if (number > primes.last()) {
-                for (int i = primes.last() + 2; i < number; i += 2) {
-                    if (checkPrime(i)) {
-                        primes.add(i);
-                    }
+            int i = primes.last();
+            while( number >= primes.last()) {
+                if(checkPrime(i)) {
+                    primes.add(i);
                 }
+                i+=2;
             }
         }
 
