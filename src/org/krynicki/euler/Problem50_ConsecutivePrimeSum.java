@@ -1,75 +1,70 @@
 package org.krynicki.euler;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.krynicki.euler.QuadraticPrimes.PrimeGenerator;
 
 /**
  * Created by K on 2016-11-01.
  */
 public class Problem50_ConsecutivePrimeSum {
 
-    static QuadraticPrimes.PrimeGenerator gen = new QuadraticPrimes.PrimeGenerator(100);
-    static Map<Integer, Result> memo = new HashMap<>();
+    static int[] primes;
+    static long[] sums;
 
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
 
-        System.out.println(maxSequence(100000));
+        int size = 1000;
+        PrimeGenerator gen = new PrimeGenerator(size);
+        primes = new int[size];
+        sums = new long[size];
 
+        int j=0;
+        for(int prime:gen.getPrimes()) {
+            primes[j++] = prime;
+        }
+
+        for(int i=1;i<sums.length;i++) {
+            sums[i] = primes[i]+sums[i-1];
+        }
+
+        System.out.println(maxSequencePrimitive(1000000));
 
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
     }
 
-
-    static Result maxSequence(int max) {
+    private static Result maxSequencePrimitive(int max) {
         Result maxResult = new Result(0,0);
-        Result curr = new Result(1,0);
+        Result curr;
 
-
-
-        int j = 1;
-
-        for(int i=0;i<max;i=gen.nextPrime(i)) {
-
-            if(curr.lastVal == 0) {
-                curr = maxSequence(i, 0,0, max);
-            }
-            else {
-                curr = maxSequence(curr.lastVal, curr.len-1, curr.sum-i, max);
-            }
+        for(int primeNumber=1;primeNumber<primes.length; primeNumber++) {
+            curr = maxSequencePrimitive(primeNumber, maxResult.len, max);
 
             if(curr.len>maxResult.len) {
                 maxResult = curr;
             }
-
-            j++;
         }
-
 
         return maxResult;
     }
 
-    private static Result maxSequence(int prvNumber, int startLen, int startSum, int max) {
-        int nextPrime = prvNumber;
-
-        int currentSum = startSum;
-        int currentLen = startLen;
-
+    private static Result maxSequencePrimitive(int start, int minLen, int maxSum) {
         Result result = new Result(0,0);
 
-        while(currentSum < max) {
-            if (gen.isPrime(currentSum)) {
-                result.len = currentLen;
-                result.sum = currentSum;
-                result.lastVal = nextPrime;
-            }
+        int end = sums.length-1;
 
-            nextPrime = gen.nextPrime(nextPrime);
+        Long startSum = sums[start];
+        while((sums[end]- startSum) > maxSum && end >= 0) {
+            end--;
+        }
 
-            currentLen++;
-            currentSum += nextPrime;
+        while(!isPrime((int) (sums[end]- startSum)) && end >= minLen) {
+            end--;
+        }
 
+        if(end > minLen) {
+            result.len = end-start;
+            result.sum = sums[end]- startSum;
         }
 
         return result;
@@ -86,8 +81,7 @@ public class Problem50_ConsecutivePrimeSum {
 
     static class Result {
         int len;
-        int sum;
-        int lastVal = 0;
+        long sum;
 
         public Result(int len, int sum) {
             this.len = len;
@@ -99,7 +93,6 @@ public class Problem50_ConsecutivePrimeSum {
             return "Result{" +
                     "len=" + len +
                     ", sum=" + sum +
-                    ", lastVal=" + lastVal +
                     '}';
         }
     }
