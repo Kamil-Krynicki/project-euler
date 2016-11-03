@@ -142,7 +142,7 @@ public class QuadraticPrimes {
         }
 
         private boolean checkPrime(int i) {
-            for (int prime : primes) {
+            for (int prime : primes.headSet(primes.higher((int) (Math.sqrt(i))))) {
                 if (i % prime == 0) {
                     return false;
                 }
