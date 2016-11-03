@@ -48,7 +48,6 @@ public class Problem49_PrimePermutations {
             integers = map.get(entry);
             if(integers.size()>2) {
                 checkArithmetic(integers);
-//                System.out.println(entry + " with: " + integers);
             }
         }
 
@@ -58,36 +57,23 @@ public class Problem49_PrimePermutations {
 
     }
 
-    static boolean checkArithmetic(List<Integer> list) {
-        int[] vals = new int[list.size()-1];
-        for(int i = 0; i<list.size()-1 ; i++) {
-            vals[i] = list.get(i+1) - list.get(i);
-        }
-
-        for(int i = 1; i<vals.length ; i++) {
-            if(vals[i]==vals[i-1]) {
-                System.out.println(Arrays.toString(vals));
+    static void checkArithmetic(List<Integer> list) {
+        int q;
+        for(int a1=0;a1<list.size();a1++) {
+            for(int a2=a1+1;a2<list.size();a2++) {
+                for(int a3=a2+1;a3<list.size();a3++) {
+                    q = list.get(a2) - list.get(a1);
+                    if(list.get(a3)-list.get(a2)== q) {
+                        System.out.println("a1:"+list.get(a1) +", a2:"+list.get(a2)+", a3:"+list.get(a3));
+                    }
+                }
             }
         }
-
-        return false;
     }
 
     static String hash(int i) {
         char[] result = Integer.toString(i).toCharArray();
         Arrays.sort(result);
         return String.copyValueOf(result);
-    }
-
-    class ArithmeticChecker {
-        public boolean isArithmetic(int[] list) {
-            for(int i=0;i<list.length;i++) {
-                for(int j=i+1;i<list.length;j++) {
-                    int interval = list[j] - list[i];
-                    //checkInterval(list, j+1, interval);
-                }
-            }
-            return false;
-        }
     }
 }
