@@ -1,5 +1,8 @@
 package org.krynicki.euler;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
@@ -12,161 +15,150 @@ public class Problem54_PokerHands {
 
         long t1 = System.currentTimeMillis();
 
-        List<Hand> hands = new LinkedList<>();
-        hands.add(new Hand(new char[][]{"4D".toCharArray(),
-                "4S".toCharArray(),
-                "4C".toCharArray(),
-                "5H".toCharArray(),
-                "5D".toCharArray()}));
-        hands.add(new Hand (new char[][]{"4D".toCharArray(),
-                "5S".toCharArray(),
-                "6C".toCharArray(),
-                "7H".toCharArray(),
-                "8D".toCharArray()}));
+        BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
 
-        hands.add(new Hand (new char[][]{"4D".toCharArray(),
-                "4S".toCharArray(),
-                "4C".toCharArray(),
-                "4H".toCharArray(),
-                "8D".toCharArray()}));
+        Hand player1;
+        Hand player2;
 
-        hands.add(new Hand (new char[][]{"4D".toCharArray(),
-                "5D".toCharArray(),
-                "6D".toCharArray(),
-                "7D".toCharArray(),
-                "8D".toCharArray()}));
+        String line;
+        String[] cards;
 
-        hands.add(new Hand (new char[][]{"AD".toCharArray(),
-                "KD".toCharArray(),
-                "QD".toCharArray(),
-                "JD".toCharArray(),
-                "TD".toCharArray()}));
+        Comparator<Hand> comparator = new CompareHandByValue();
+
+        int player1victories = 0;
+
+        while ((line = reader.readLine()) != null) {
+            cards = line.split(" ");
+
+            player1 = new Hand(Arrays.copyOfRange(cards, 0, 5));
+            player2 = new Hand(Arrays.copyOfRange(cards, 5, 10));
+
+            System.out.println("======================");
+            System.out.println(player1);
+            System.out.println(player2);
+
+            if (comparator.compare(player1, player2) < 0) {
+                player1victories++;
+                System.out.println("Player 1 victory");
+            } else {
+                System.out.println("Player 2 victory");
+            }
+        }
+
+        System.out.println(player1victories);
 
         long t2 = System.currentTimeMillis();
 
-
-        Collections.sort(hands, new Comparator<Hand>() {
-            @Override
-            public int compare(Hand o1, Hand o2) {
-                return o2.totalWeight-o1.totalWeight;
-            }
-        });
-        System.out.print(hands);
-
-        Collections.sort(hands, new Comparator<Hand>() {
-            @Override
-            public int compare(Hand o1, Hand o2) {
-                if(o1.totalWeight!=o2.totalWeight) {
-                    return o2.totalWeight-o1.totalWeight;
-                } else {
-                return 0;
-                }
-
-            }
-        });
-        System.out.print(hands);
         System.out.println(t2 - t1);
     }
 
-    static class Hand {
+    static class CompareHandByValue implements Comparator<Hand> {
         @Override
-        public String toString() {
-            return "Hand{" +
-                    "totalWeight=" + totalWeight +
-                    ", types=" + types +
-                    '}';
-        }
+        public int compare(Hand hand1, Hand hand2) {
+            if (hand1.totalWeight() != hand2.totalWeight()) {
+                return hand2.totalWeight() - hand1.totalWeight();
+            } else {
+                Queue<HandItem> o1bestItems = new LinkedList<>(hand1.handItems);
+                Queue<HandItem> o2BestItems = new LinkedList<>(hand2.handItems);
 
-        short[] decks = new short[4];
-        short[] values = new short[15];
+                while (!o1bestItems.isEmpty() && !o2BestItems.isEmpty()) {
+                    HandItem item1 = o1bestItems.poll();
+                    HandItem item2 = o2BestItems.poll();
 
-        int totalWeight;
+                    if (item1.weight() != item2.weight()) {
+                        return item2.weight() - item1.weight();
+                    } else if (item1.value() != item2.value()) {
+                        return item2.value() - item1.value();
+                    }
+                }
 
-        SortedSet<HandType> types = new TreeSet<>();
+                if (!o1bestItems.isEmpty()) {
+                    return -1;
+                }
 
-        public Hand(char[][] cardCodes) {
-            short value;
-            for(char[] cardCode:cardCodes) {
-                decks[deck(cardCode[1])]++;
-                value = value(cardCode[0]);
-                values[value]++;
-//                types.add(new Cards(value));
+                if (!o2BestItems.isEmpty()) {
+                    return 1;
+                }
+
+                return 0;
             }
-            addMultiCard();
-            addFlush();
-            addStraight();
+        }
+    }
 
-            totalWeight = totalWeigth();
+    static class Hand {
+        private List<HandItem> handItems;
+
+        public Hand(String[] cards) {
+            handItems = new LinkedList<>();
+
+            short[] values = new short[15];
+            short[] decks = new short[4];
+
+            for (String card : cards) {
+                values[value(card.charAt(0))]++;
+                decks[deck(card.charAt(1))]++;
+            }
+
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] > 0) {
+                    handItems.add(new CardSet(i, values[i]));
+                }
+            }
+
+            if (isFlush(decks)) {
+                handItems.add(new Flush(maxValue(values)));
+            }
+
+            if (isStraight(values)) {
+                handItems.add(new CardSequence(maxValue(values)));
+            }
+
+            Collections.sort(handItems, new Comparator<HandItem>() {
+                @Override
+                public int compare(HandItem o1, HandItem o2) {
+                    return o2.value() - o1.value();
+                }
+            });
+
+            Collections.sort(handItems, new Comparator<HandItem>() {
+                @Override
+                public int compare(HandItem o1, HandItem o2) {
+                    return o2.weight() - o1.weight();
+                }
+            });
         }
 
-        private int totalWeigth() {
+        public int totalWeight() {
             int result = 0;
-            for(HandType ht:types) {
-                result+=ht.weight();
+            for (HandItem ht : handItems) {
+                result += ht.weight();
             }
             return result;
         }
 
-        private void addMultiCard() {
-            for(int i = 0;i<values.length;i++) {
-                if(values[i]>1) {
-                    types.add(new Cards(i, values[i]));
-                }
-            }
-        }
+        private boolean isFlush(short[] decks) {
+            int i = decks.length - 1;
 
-        private void addFlush() {
-            if(isFlush()) {
-                types.add(new Flush(maxValue()));
-            }
-        }
-
-        private boolean isFlush() {
-            int i = decks.length-1;
-
-            while(decks[i]==0 && i>=0) {
-                i--;
-            }
-
-            i--;
-
-            while(i>=0) {
-                if(decks[i--]>0) return false;
-            }
+            while (decks[i] == 0 && i-- >= 0);
+            while (--i >= 0) if (decks[i] > 0) return false;
 
             return true;
         }
 
-        private void addStraight() {
-            if(isStraight()) {
-                types.add(new Straight(maxValue()));
-            }
-        }
+        private boolean isStraight(short[] values) {
+            int i = values.length - 1;
 
-        private boolean isStraight() {
-            int i = values.length-1;
-
-            while(values[i]==0 && i>=0) {
-                i--;
-            }
-
-            while(values[i]==1 && i>=0) {
-                i--;
-            }
-
-            while(i>=0) {
-                if(values[i--]>0) return false;
-            }
+            while (values[i] == 0 && i-- >= 0);
+            while (values[i] == 1 && i-- >= 0);
+            while (i >= 0) if (values[i--] > 0) return false;
 
             return true;
         }
 
-        private int maxValue() {
-            int result = 14;
+        private int maxValue(short[] values) {
+            int result = values.length-1;
 
-            while(values[result] == 0) {
-                result--;
-            }
+            while (values[result] == 0) result--;
 
             return result;
         }
@@ -204,65 +196,56 @@ public class Problem54_PokerHands {
     }
 }
 
-abstract class HandType implements Comparable<HandType> {
+abstract class HandItem {
     private int value;
 
-    public HandType(int value) {
+    public HandItem(int value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public int value() {
         return value;
     }
-
 
     abstract int weight();
 
     @Override
     public String toString() {
-        return "HandType{" +
-                "value=" + value +
-                '}';
-    }
-
-
-    @Override
-    public int compareTo(HandType o) {
-        return o.weight()-this.weight();
+        return "{" + value + "}";
     }
 }
 
-class Cards extends HandType {
+class CardSet extends HandItem {
     private short count;
 
-    public Cards(int value) {
-        super(value);
-        count = 1;
-    }
-
-    @Override
-    int weight() {
-        switch (count) {
-            case 1:return 0;
-            case 2:return 3;
-            case 3:return 7;
-            case 4:return 15;
-        }
-        return -1;
-    }
-
-    public Cards(int value, short count) {
+    public CardSet(int value, short count) {
         super(value);
         this.count = count;
     }
 
     @Override
+    int weight() {
+        switch (count) {
+            case 1:
+                return 1;
+            case 2:
+                return 3;
+            case 3:
+                return 7;
+            case 4:
+                return 15;
+            default:
+                return -1;
+        }
+    }
+
+    @Override
     public String toString() {
-        return "Set of "+count +" cards " + super.toString();
+        return "Set of " + count + " cards " + super.toString();
     }
 }
 
-class Flush extends HandType {
+class Flush extends HandItem {
     public Flush(int value) {
         super(value);
     }
@@ -274,13 +257,13 @@ class Flush extends HandType {
 
     @Override
     public String toString() {
-        return "Flush "+ super.toString();
+        return "Flush with max" + super.toString();
     }
 
 }
 
-class Straight extends HandType {
-    public Straight(int value) {
+class CardSequence extends HandItem {
+    public CardSequence(int value) {
         super(value);
     }
 
@@ -288,8 +271,9 @@ class Straight extends HandType {
     int weight() {
         return 8;
     }
+
     @Override
     public String toString() {
-        return "Straight "+ super.toString();
+        return "CardSequence from " + super.toString() + " down";
     }
 }
