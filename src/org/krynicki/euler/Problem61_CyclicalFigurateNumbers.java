@@ -2,12 +2,14 @@ package org.krynicki.euler;
 
 import org.krynicki.euler.Problem45_TrianglePentagonHexagon.Generator;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.function.LongFunction;
+import java.util.Queue;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.IntStream;
 
 /**
  * Created by K on 2016-11-09.
@@ -35,55 +37,91 @@ public class Problem61_CyclicalFigurateNumbers {
     public static void main(String[] args) {
         PriorityQueue<Generator> queue = new PriorityQueue<>();
 
-        Generator[] generators = {new Generator(1, t -> t * (t + 1) >> 1),
-        new Generator(1, t -> t * t ),
-        new Generator(1, t -> t * (3 * t - 1) >> 1),
-        new Generator(1, t -> t * (2 * t - 1)),
-        new Generator(1, t -> t * (5 * t - 3) >> 1),
-        new Generator(1, t -> t * (3 * t - 2))};
+        final long t1 = System.currentTimeMillis();
+        Generator[] generators = {
+                new Generator(1, t -> t * (t + 1) >> 1),
+                new Generator(1, t -> t * t),
+                new Generator(1, t -> t * (3 * t - 1) >> 1),
+                new Generator(1, t -> t * (2 * t - 1)),
+                new Generator(1, t -> t * (5 * t - 3) >> 1),
+                new Generator(1, t -> t * (3 * t - 2))
+        };
 
+        Queue<List<List<Integer>>> values = new LinkedList<>();
+        for (int i = 0; i < generators.length; i++) {
+            List<List<Integer>> toAdd = new ArrayList<>(100);
 
-        List<Integer>[] values = new List[6];
-        for(int i = 0;i<6;i++) {
-            values[i] = new ArrayList<>(100);
-            while(generators[i].value() < 1000) {
+            while (generators[i].value() < 1000) {
                 generators[i].next();
             }
-            while(generators[i].value() < 10000) {
-                values[i].add((int) generators[i].value());
+
+            for (int j = 0; j <= 99; j++) {
+                toAdd.add(new ArrayList<>(10));
+            }
+
+            int nextValue;
+            int startDigits;
+
+            while ((nextValue = (int) generators[i].value()) < 10000) {
+                startDigits = nextValue / 100;
+
+                if (nextValue % 100 > 10) {
+                    toAdd.get(startDigits).add(nextValue);
+                }
+
                 generators[i].next();
             }
+            values.add(toAdd);
         }
 
         resolve(values);
 
-        System.out.println();
+        final long t2 = System.currentTimeMillis();
+
+        System.out.println(t2 - t1);
 
 
     }
 
-    private static void resolve(List<Integer>[] values) {
-        for(int value:values[0]) {
-            resolve(values, 0, value, value);
-        }
+    private static void resolve(Queue<List<List<Integer>>> values) {
+        List<List<Integer>> startingList = values.poll();
+        int[] chosenValues = new int[6];
+        for (List<Integer> list : startingList) {
+            for (int value : list) {
+                chosenValues[0] = value;
+                if(resolve(values, chosenValues, 1)) {
+                    System.out.println(Arrays.toString(chosenValues));
+                    System.out.println(IntStream.range(0, chosenValues.length).map(new IntUnaryOperator() {
+                        @Override
+                        public int applyAsInt(int operand) {
+                            return chosenValues[operand];
+                        }
+                    }).sum());
+                    return;
+                }
+            }
 
+        }
     }
 
-    private static boolean resolve(List<Integer>[] values, int num, int carryOverValue, int startValue) {
-        if(num == values.length) {
-            return startsWith(carryOverValue, startValue);
+    private static boolean resolve(Queue<List<List<Integer>>> values, int[] chosenValues, int current) {
+        if (values.isEmpty()) {
+            return chosenValues[0] / 100 == chosenValues[current-1] % 100;
         }
 
-
-        int endDigits = carryOverValue%100;
-        for(int value:values[num%values.length]) {
-            if(startsWith(endDigits, value)) {
-                if(resolve(values, num + 1, value, startValue)) {
-                    System.out.println("LEVEL "+num);
-                    System.out.println(value);
+        int endDigits = chosenValues[current-1] % 100;
+        List<List<Integer>> currentList;
+        int left = values.size();
+        while (left > 0) {
+            currentList = values.poll();
+            for (int value : currentList.get(endDigits)) {
+                chosenValues[current] = value;
+                if (resolve(values, chosenValues, current + 1)) {
                     return true;
                 }
             }
+            left--;
+            values.add(currentList);
         }
 
         return false;
