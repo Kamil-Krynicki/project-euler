@@ -54,8 +54,6 @@ public class Problem65_ConvergentsOfE {
             sum+=c-0x30;
         }
 
-        System.out.println(sum);
-
         final long t2 = System.currentTimeMillis();
 
         System.out.println(t2 - t1);
