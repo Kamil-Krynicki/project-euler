@@ -1,7 +1,6 @@
 package org.krynicki.euler;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigInteger;
 
 /**
  * Created by kamil.krynicki on 15/11/2016.
@@ -32,16 +31,11 @@ public class Problem66_DiophantineEquation {
     static public void main(String... args) {
         final long t1 = System.currentTimeMillis();
 
-        Set<Long> result = new HashSet<>();
-
         int maxD = -1;
-        long maxDx = -1;
+        BigInteger maxDx = BigInteger.ZERO;
 
         for (int D = 1; D <= 1000; D++) {
-            System.out.println("====================================");
-            System.out.println("D=" + D);
-
-            long a0 = (int) Math.sqrt(D);
+            int a0 = (int) Math.sqrt(D);
             if (a0 * a0 == D) continue;
 
             long ai = a0;
@@ -49,7 +43,12 @@ public class Problem66_DiophantineEquation {
             long d = 1;
             long m = 0;
 
-            long hi = a0, ki = 1, hi1 = 1, ki1 = 0, hi2, ki2;
+            BigInteger hi = BigInteger.valueOf(a0);
+            BigInteger ki = BigInteger.valueOf(1);
+            BigInteger hi1 = BigInteger.valueOf(1);
+            BigInteger ki1 = BigInteger.valueOf(0);
+            BigInteger hi2;
+            BigInteger ki2;
 
             do {
                 m = d * ai - m;
@@ -62,21 +61,15 @@ public class Problem66_DiophantineEquation {
                 hi1 = hi;
                 ki1 = ki;
 
-                hi = ai * hi1 + hi2;
-                ki = ai * ki1 + ki2;
-            } while (hi * hi - D * ki * ki != 1);
+                hi = hi1.multiply(BigInteger.valueOf(ai)).add(hi2);
+                ki = ki1.multiply(BigInteger.valueOf(ai)).add(ki2);
+            } while (!hi.pow(2).subtract(ki.pow(2).multiply(BigInteger.valueOf(D))).equals(BigInteger.ONE));
 
-            if( maxDx < hi) {
+            if (maxDx.compareTo(hi) < 0) {
                 maxDx = hi;
                 maxD = D;
             }
-
-
-            System.out.println("y=" + ki);
-            System.out.println("x=" + hi);
-
         }
-
 
         final long t2 = System.currentTimeMillis();
 
