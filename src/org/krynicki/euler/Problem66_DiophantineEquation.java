@@ -2,7 +2,6 @@ package org.krynicki.euler;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Created by kamil.krynicki on 15/11/2016.
@@ -30,60 +29,62 @@ public class Problem66_DiophantineEquation {
     Find the value of D ≤ 1000 in minimal solutions of x for which the largest value of x is obtained.
     */
 
-    static SquareChecker squareChecker = new SquareChecker();
-
     static public void main(String... args) {
         final long t1 = System.currentTimeMillis();
 
         Set<Long> result = new HashSet<>();
 
-        for (int D = 61; D <= 61; D++) {
-            if (!isSquare(D)) {
-                System.out.println("====================================");
-                System.out.println("D=" + D);
-                long y = 1;
-                double xD;
-                while (!isWhole((xD = Math.sqrt(1 + D * y * y)))) {
-                    y++;
-                }
+        int maxD = -1;
+        long maxDx = -1;
 
-                result.add((long) xD);
+        for (int D = 1; D <= 1000; D++) {
+            System.out.println("====================================");
+            System.out.println("D=" + D);
 
-                System.out.println("y=" + y);
-                System.out.println("x=" + (long)xD);
+            long a0 = (int) Math.sqrt(D);
+            if (a0 * a0 == D) continue;
+
+            long ai = a0;
+
+            long d = 1;
+            long m = 0;
+
+            long hi = a0, ki = 1, hi1 = 1, ki1 = 0, hi2, ki2;
+
+            do {
+                m = d * ai - m;
+                d = (D - m * m) / d;
+                ai = (a0 + m) / d;
+
+                hi2 = hi1;
+                ki2 = ki1;
+
+                hi1 = hi;
+                ki1 = ki;
+
+                hi = ai * hi1 + hi2;
+                ki = ai * ki1 + ki2;
+            } while (hi * hi - D * ki * ki != 1);
+
+            if( maxDx < hi) {
+                maxDx = hi;
+                maxD = D;
             }
+
+
+            System.out.println("y=" + ki);
+            System.out.println("x=" + hi);
+
         }
 
 
         final long t2 = System.currentTimeMillis();
 
-        result.stream().sorted().forEach(System.out::println);
+        System.out.println("max D: " + maxD);
+        System.out.println("max D x: " + maxDx);
 
+        System.out.println("time:");
         System.out.println(t2 - t1);
     }
 
-    private static boolean isWhole(double num) {
-        return num%1==0;
-    }
-
-    private static boolean isSquare(long num) {
-        return squareChecker.isSquare(num);
-    }
-
-    static class SquareChecker {
-        TreeSet<Long> squares = new TreeSet<>();
-        long maxNum = 1;
-        long maxSq = 1;
-
-        boolean isSquare(long num) {
-            if (num > maxSq) {
-                do {
-                    squares.add(maxSq);
-                    maxNum++;
-                } while ((maxSq = maxNum * maxNum) < num);
-                squares.add(maxSq);
-            }
-            return squares.contains(num);
-        }
-    }
 }
