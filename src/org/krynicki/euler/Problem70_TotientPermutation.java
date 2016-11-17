@@ -5,8 +5,6 @@ import org.krynicki.euler.util.PrimeGenerator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import static org.krynicki.euler.QuadraticPrimes.PrimeGenerator;
-
 /**
  * Created by K on 2016-11-17.
  */
