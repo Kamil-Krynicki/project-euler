@@ -86,7 +86,7 @@ public class QuadraticPrimes {
 
             result.primes.add(2);
             int i = 3;
-            while (i < to) {
+            while (i <= to) {
                 if (result.checkPrime(i)) {
                     result.primes.add(i);
                 }
