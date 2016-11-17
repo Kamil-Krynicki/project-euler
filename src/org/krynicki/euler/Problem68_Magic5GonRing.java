@@ -1,6 +1,6 @@
 package org.krynicki.euler;
 
-import org.krynicki.euler.LexicographicPermutations.PermutationsGenerator;
+import org.krynicki.euler.util.PermutationsGenerator;
 
 import java.util.*;
 

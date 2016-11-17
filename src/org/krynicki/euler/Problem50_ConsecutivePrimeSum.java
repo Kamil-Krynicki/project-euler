@@ -1,6 +1,6 @@
 package org.krynicki.euler;
 
-import static org.krynicki.euler.QuadraticPrimes.PrimeGenerator;
+import org.krynicki.euler.util.PrimeGenerator;
 
 /**
  * Created by K on 2016-11-01.

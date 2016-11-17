@@ -1,7 +1,6 @@
 package org.krynicki.euler;
 
-import org.hibernate.mapping.Array;
-import org.krynicki.euler.QuadraticPrimes.PrimeGenerator;
+import org.krynicki.euler.util.PrimeGenerator;
 
 import java.util.Arrays;
 

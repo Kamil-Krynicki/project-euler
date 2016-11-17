@@ -1,8 +1,7 @@
 package org.krynicki.euler;
 
-import org.hibernate.mapping.Array;
+import org.krynicki.euler.util.PrimeGenerator;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.SortedSet;
 
@@ -13,7 +12,7 @@ public class Problem70_TotientPermutation {
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
 
-        QuadraticPrimes.PrimeGenerator generator = QuadraticPrimes.PrimeGenerator.getPrimesBelow((int) 5E6);
+        PrimeGenerator generator = PrimeGenerator.getPrimesBelow((int) 5E6);
         SortedSet<Integer> primesSet = generator.getPrimes();
         Iterator<Integer> iterator = primesSet.iterator();
 

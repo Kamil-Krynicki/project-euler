@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.krynicki.euler.LexicographicPermutations.PermutationsGenerator;
+import org.krynicki.euler.util.PermutationsGenerator;
 
 /**
  * Created by K on 2016-10-20.

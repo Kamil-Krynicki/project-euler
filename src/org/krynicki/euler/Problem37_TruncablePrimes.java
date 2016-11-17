@@ -1,5 +1,7 @@
 package org.krynicki.euler;
 
+import org.krynicki.euler.util.CombinationGenerator;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -43,7 +45,7 @@ public class Problem37_TruncablePrimes {
         }
 
         public Set<Integer> getTruncablePrimes(int limit) {
-            Problem35_CircularPrimes.CombinationGenerator c = new Problem35_CircularPrimes.CombinationGenerator(new int[]{1, 2, 3, 5, 7, 9});
+            CombinationGenerator c = new CombinationGenerator(new int[]{1, 2, 3, 5, 7, 9});
 
             Set<Integer> result = new HashSet<>();
             int next;

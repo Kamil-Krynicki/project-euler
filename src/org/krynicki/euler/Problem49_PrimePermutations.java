@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static org.krynicki.euler.QuadraticPrimes.PrimeGenerator;
+import org.krynicki.euler.util.PrimeGenerator;
 
 /**
  * Created by kamil.krynicki on 31/10/2016.

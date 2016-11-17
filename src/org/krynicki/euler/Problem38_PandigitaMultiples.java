@@ -3,7 +3,7 @@ package org.krynicki.euler;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.krynicki.euler.LexicographicPermutations.PermutationsGenerator;
+import org.krynicki.euler.util.PermutationsGenerator;
 
 /**
  * Created by kamil.krynicki on 24/10/2016.

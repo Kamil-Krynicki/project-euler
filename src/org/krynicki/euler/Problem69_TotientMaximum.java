@@ -1,8 +1,6 @@
 package org.krynicki.euler;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.krynicki.euler.util.PrimeGenerator;
 
 /**
  * Created by K on 2016-11-16.
@@ -11,7 +9,7 @@ public class Problem69_TotientMaximum {
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
 
-        QuadraticPrimes.PrimeGenerator generator = new QuadraticPrimes.PrimeGenerator(5);
+        PrimeGenerator generator = new PrimeGenerator(5);
 
         int val = 1;
         int nextPrime = 1;

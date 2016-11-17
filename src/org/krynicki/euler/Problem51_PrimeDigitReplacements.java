@@ -1,5 +1,7 @@
 package org.krynicki.euler;
 
+import org.krynicki.euler.util.PrimeGenerator;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +31,7 @@ public class Problem51_PrimeDigitReplacements {
         Problem51_PrimeDigitReplacements k = new Problem51_PrimeDigitReplacements();
         long t1 = System.currentTimeMillis();
 
-        QuadraticPrimes.PrimeGenerator gen = QuadraticPrimes.PrimeGenerator.getPrimesBelow(1000000);
+        PrimeGenerator gen = PrimeGenerator.getPrimesBelow(1000000);
 
         int i = 0;
         do {
