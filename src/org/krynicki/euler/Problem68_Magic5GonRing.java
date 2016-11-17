@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by K on 2016-11-15.
  */
-public class Problem67_Magic5GonRing {
+public class Problem68_Magic5GonRing {
     /*
     Consider the following "magic" 3-gon ring, filled with the numbers 1 to 6, and each line adding to nine.
 
