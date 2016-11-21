@@ -1,6 +1,5 @@
 package org.krynicki.euler.util;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 
 /**
@@ -9,20 +8,37 @@ import java.util.Arrays;
 public class ContinuedFraction {
     final int a0;
     final int[] ai;
+    final int k;
 
     public ContinuedFraction(int a0, int... ai) {
         this.a0 = a0;
         this.ai = ai;
+        this.k = ai.length;
     }
 
-    public ContinuedFraction rightChild() {
+    public ContinuedFraction right() {
+        if(k%2==1) {
+            return childExpanded();
+        } else {
+            return childNotExpanded();
+        }
+    }
+
+    public ContinuedFraction left() {
+        if(k%2==0) {
+            return childExpanded();
+        } else {
+            return childNotExpanded();
+        }
+    }
+
+    private ContinuedFraction childNotExpanded() {
         int[] ai = Arrays.copyOf(this.ai, this.ai.length);
         ai[ai.length-1]++;
         return new ContinuedFraction(a0, ai);
     }
 
-
-    public ContinuedFraction leftChild() {
+    private ContinuedFraction childExpanded() {
         int[] ai = Arrays.copyOf(this.ai, this.ai.length+1);
         ai[ai.length-2]--;
         ai[ai.length-1]=2;
@@ -63,20 +79,28 @@ public class ContinuedFraction {
     }
 
     public class Fraction {
-        private int numerator;
-        private int denomintor;
+        private int num;
+        private int den;
 
         public Fraction(int num, int den) {
-            numerator = num;
-            denomintor = den;
+            this.num = num;
+            this.den = den;
+        }
+
+        public int num() {
+            return num;
+        }
+
+        public int den() {
+            return den;
         }
 
         public String toString() {
-            return numerator +"/"+denomintor;
+            return num +"/"+ den;
         }
 
         public double toDouble() {
-            return (double)numerator/denomintor;
+            return (double) num / den;
         }
     }
 }

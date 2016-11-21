@@ -9,38 +9,25 @@ public class Problem71_OrderedFractions {
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
 
-        ContinuedFraction kamil = new ContinuedFraction(1,2,3,2);
+        ContinuedFraction cFraction = new ContinuedFraction(0, 2, 3); // exactly 3/7
 
-        System.out.println(kamil);
-        System.out.println(kamil.value());
-        System.out.println(kamil.leftChild());
-        System.out.println(kamil.leftChild().value());
-        System.out.println(kamil.rightChild());
-        System.out.println(kamil.rightChild().value());
-        System.out.println(kamil.parent());
-        System.out.println(kamil.parent().value());
-        System.out.println(kamil.leftChild().parent());
-        System.out.println(kamil.leftChild().parent().value());
-        System.out.println(kamil.rightChild().parent());
-        System.out.println(kamil.rightChild().parent().value());
+        cFraction = cFraction.left(); // smaller
 
-        ContinuedFraction kamil2 = new ContinuedFraction(0, 2,3);
+        while (cFraction.value().den() <= 1E6) {
+            cFraction = cFraction.right(); // bigger
+        }
+        cFraction = cFraction.parent();
 
-        System.out.println(kamil2);
-        System.out.println(kamil2.value());
-        System.out.println(kamil2.parent().value());
-        System.out.println(kamil2.parent().rightChild().value());
-        System.out.println(kamil2.parent().leftChild().value());
-        System.out.println(kamil2.value().toDouble());
-        System.out.println(kamil2.parent().value().toDouble());
-        System.out.println(kamil2.parent().rightChild().value().toDouble());
-        System.out.println(kamil2.parent().leftChild().value().toDouble());
+        ContinuedFraction.Fraction pFraction = cFraction.value();
 
         long t2 = System.currentTimeMillis();
 
-        System.out.println("================");
-        //System.out.println(Arrays.toString(primes));
+        System.out.println("Result");
+        System.out.println(cFraction);
+        System.out.println(pFraction);
+        System.out.println(pFraction.toDouble());
 
+        System.out.println("================");
         System.out.println(t2 - t1);
     }
 }
