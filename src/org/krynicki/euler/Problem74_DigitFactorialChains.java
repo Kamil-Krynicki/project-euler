@@ -1,8 +1,7 @@
 package org.krynicki.euler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by K on 2016-11-21.
@@ -29,15 +28,14 @@ public class Problem74_DigitFactorialChains {
 
     How many chains, with a starting number below one million, contain exactly sixty non-repeating terms?
     */
+    public static final double iterations = 1E6;
+    public static final int searchedLen = 60;
 
     static int[] factorials;
-
-    static int[] memo = new int[2177281];
+    static int[] memo;
 
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
-
-        Arrays.fill(memo, -1);
 
         factorials = new int[10];
         factorials[0] = 1;
@@ -45,39 +43,39 @@ public class Problem74_DigitFactorialChains {
             factorials[i] = factorials[i - 1] * i;
         }
 
+        memo = new int[6 * factorialOfDigits(9) + 1];
+
         int sum = 0;
+        Set<Integer> currentPath;
 
-        for(int start = 1; start <= 1E6;start++) {
-
-            if(memo[start]!=-1) {
-                System.out.println("Skipping");
+        for(int start = 1; start <= iterations;start++) {
+            if(memo[start]!=0) {
                 continue;
             }
 
-            List<Integer> tmpList = new ArrayList<>();
+            currentPath = new LinkedHashSet<>();
 
-            int tmp = start;
+            int current = start;
+            int len;
 
             do {
-                tmpList.add(tmp);
-                tmp = factorialOfDigits(tmp);
-            } while (!tmpList.contains(tmp));
+                if(memo[current]!=0) break;
 
+                currentPath.add(current);
+                current = factorialOfDigits(current);
+            } while (!currentPath.contains(current));
 
+            len = currentPath.size() + memo[current];
 
-            //System.out.println(start+":"+tmpList.size());
-
-            for (int i = 0; i < tmpList.indexOf(tmp); i++) {
-                memo[tmpList.get(i)] = tmpList.size() - i;
-            }
-
-            for (int i = tmpList.indexOf(tmp); i < tmpList.size(); i++) {
-                memo[tmpList.get(i)] = tmpList.size() - tmpList.indexOf(tmp);
-            }
-
-            if(tmpList.size() == 60) {
-                System.out.println("WOW");
+            if(len == searchedLen) {
                 sum++;
+            }
+
+            boolean found = false;
+            for(int i:currentPath) {
+                if(i == current) found = true;
+                memo[i] = len;
+                if(!found) len--;
             }
         }
 
