@@ -59,6 +59,32 @@ public class PrimeGenerator {
         }
     }
 
+
+    public int prvPrime(int number) {
+        expandBuffer(number);
+        try {
+            return primes.lower(number);
+
+        } catch (NullPointerException ex) {
+            ex.printStackTrace();
+            return -1;
+        }
+    }
+
+    public int prvOrEqualPrime(int number) {
+        expandBuffer(number);
+        try {
+            if(isPrime(number)) {
+                return number;
+            } else {
+                return primes.lower(number);
+            }
+        } catch (NullPointerException ex) {
+            ex.printStackTrace();
+            return -1;
+        }
+    }
+
     public boolean isPrime(int number) {
         expandBuffer(number);
         return primes.contains(number);
