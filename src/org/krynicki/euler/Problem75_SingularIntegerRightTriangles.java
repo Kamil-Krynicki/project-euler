@@ -1,7 +1,5 @@
 package org.krynicki.euler;
 
-import java.util.Arrays;
-
 /**
  * Created by K on 2016-11-22.
  */
@@ -31,19 +29,21 @@ public class Problem75_SingularIntegerRightTriangles {
 
         int[] decompositions = new int[L + 1];
 
-
-        for (int n = 1; n < Math.sqrt(L); n++)
-            for (int m = n + 1; m < Math.sqrt(L); m++) {
-                if (gdc(m, n) > 1) continue;
+        for (int n = 1; n < Math.sqrt(L) / 2; ++n) {
+            int nn = n * n;
+            for (int m = n + 1; m < Math.sqrt(L); ++m) {
                 if (m % 2 == 1 && n % 2 == 1) continue;
-                int a = m * m - n * n;
+                if (gdc(m, n) > 1) continue;
+                int a = m * m - nn;
                 int b = 2 * m * n;
-                int c = m * m + n * n;
+                int c = a + 2*nn;
+                int baseL = a + b + c;
                 int tmpL = 0;
-                while ((tmpL += (a + b + c)) <= L) {
+                while ((tmpL += baseL) <= L) {
                     decompositions[tmpL]++;
                 }
             }
+        }
 
         long t2 = System.currentTimeMillis();
 
