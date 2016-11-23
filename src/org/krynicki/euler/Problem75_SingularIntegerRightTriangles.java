@@ -1,8 +1,6 @@
 package org.krynicki.euler;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
  * Created by K on 2016-11-22.
@@ -29,28 +27,40 @@ public class Problem75_SingularIntegerRightTriangles {
         long t1 = System.currentTimeMillis();
 
         long sum = 0;
-        int L = (int) 1.5E6;
+        int L = (int) 1500000;
 
         int[] decompositions = new int[L + 1];
 
 
-        for(int n = 1; n < Math.sqrt(L)/2; n++)
-            for(int m = n+1; m < Math.sqrt(L)/2;m++) {
-                int a = m*m - n*n;
-                int b = 2*m*n;
-                int c = m*m + n*n;
-                int k = 1;
-                while(k*(a + b + c) < L) {
-                    k++;
-                   System.out.println();
+        for (int n = 1; n < Math.sqrt(L); n++)
+            for (int m = n + 1; m < Math.sqrt(L); m++) {
+                if (gdc(m, n) > 1) continue;
+                if (m % 2 == 1 && n % 2 == 1) continue;
+                int a = m * m - n * n;
+                int b = 2 * m * n;
+                int c = m * m + n * n;
+                int tmpL = 0;
+                while ((tmpL += (a + b + c)) <= L) {
+                    decompositions[tmpL]++;
                 }
             }
 
-
-
         long t2 = System.currentTimeMillis();
 
+        for (int i : decompositions) {
+            if (i == 1) {
+                sum++;
+            }
+        }
+
+        //System.out.println(Arrays.toString(decompositions));
         System.out.println(sum);
         System.out.println(t2 - t1);
     }
+
+    private static int gdc(int a, int b) {
+        if (b == 0) return a;
+        return gdc(b, a % b);
+    }
+
 }
