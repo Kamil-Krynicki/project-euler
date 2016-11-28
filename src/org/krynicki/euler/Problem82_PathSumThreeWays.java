@@ -1,9 +1,15 @@
 package org.krynicki.euler;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 /**
  * Created by K on 2016-11-27.
@@ -11,8 +17,8 @@ import java.util.List;
 public class Problem82_PathSumThreeWays {
 
 
-    static int[][] matrix;
     static int[][] memo;
+    static int[][] matrix;
     private static int size;
 
     public static void main(String[] args) throws IOException {
@@ -21,11 +27,12 @@ public class Problem82_PathSumThreeWays {
 
         //matrix = load(args[0]);
 
-        matrix = new int[][]{{131, 673, 234, 103, 18},
-        {201, 96, 342, 965, 150},
+        matrix = new int[][]{
+        {131, 673, 234, 103, 18 },
+        {201, 96,  342, 965, 150},
         {630, 803, 746, 422, 111},
         {537, 699, 497, 121, 956},
-        {805, 732, 524, 37, 331}};
+        {805, 732, 524, 37,  331}};
         size = 5;
 
 
@@ -40,61 +47,47 @@ public class Problem82_PathSumThreeWays {
     }
 
     private static int solve() {
-        memo = new int[size][size];
+        PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                return o1.cost() - o2.cost();
+            }
+        });
+
+        Map<Node, Integer> visited = new HashMap<>();
+
+        for(int i=1;i<size;i++) {
+            for (int j = 0; j < size ; j++) {
+                visited.put(new Node(i, j), Integer.MAX_VALUE);
+            }
+        }
 
         for(int i=0;i<size;i++) {
-            memo[i][size-1] = matrix[i][size-1];
+            Node e = new Node(0, i, matrix[i][0]);
+            queue.add(e);
+            visited.put(e, matrix[i][0]);
         }
 
+        while(true) {
+            Node best = queue.poll();
 
-        findMinFromNewColumn(0, 0);
+            if(best.x == size - 1) {
+                return best.cost();
+            }
 
-        int result = Integer.MAX_VALUE;
-
-        for(int i=0;i<size;i++) {
-            result = Math.min(result, memo[i][0]);
+            Iterator<Node> neighbours = best.neighbours();
+            Node toAdd;
+            int stepCost;
+            while(neighbours.hasNext()) {
+                toAdd = neighbours.next();
+                toAdd.setCost(matrix[toAdd.y][toAdd.x] + best.cost());
+                if(visited.get(toAdd) > toAdd.cost()) {
+                    visited.put(toAdd, toAdd.cost());
+                    queue.remove(toAdd);
+                    queue.add(toAdd);
+                }
+            }
         }
-        return result;
-    }
-
-    private static int findMinFromNewColumn(int x, int y) {
-        if(x >= size || x < 0) return Integer.MAX_VALUE;
-
-        if(memo[x][y] > 0) {
-            return memo[x][y];
-        }
-
-        int result = Integer.MAX_VALUE;
-
-        result = Math.min(result, findMinFromWithinColumn(x , y + 1, 1));
-        result = Math.min(result, findMinFromWithinColumn(x , y - 1, -1));
-        result = Math.min(result, findMinFromNewColumn(x + 1, y));
-
-        result += matrix[x][y];
-
-        memo[x][y] = result;
-
-        return result;
-    }
-
-    private static int findMinFromWithinColumn(int x, int y, int change) {
-        if(y >= size || y < 0) return Integer.MAX_VALUE;
-
-        if(memo[x][y] > 0) {
-            return memo[x][y];
-        }
-
-
-        int result = Integer.MAX_VALUE;
-
-        result = Math.min(result, findMinFromWithinColumn(x, y + change, change));
-        result = Math.min(result, findMinFromNewColumn(x + 1, y));
-
-        result += matrix[x][y];
-
-        memo[x][y] = result;
-
-        return result;
     }
 
     static void printMatrix(int[][] matrix) {
@@ -123,5 +116,103 @@ public class Problem82_PathSumThreeWays {
         } while ((line = reader.readLine()) != null);
 
         return result;
+    }
+
+    private static class Node {
+        final int x;
+        final int y;
+        int cost;
+
+        private Node(int x, int y) {
+            this.x = x;
+            this.y = y;
+            cost = Integer.MAX_VALUE;
+        }
+
+        private Node(int x, int y, int cost) {
+            this.x = x;
+            this.y = y;
+            this.cost = cost;
+        }
+
+        public int value() {
+            return matrix[y][x];
+        }
+
+        public int cost() {
+            return cost;
+        }
+
+        public void setCost(int i) {
+            this.cost = i;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Node node = (Node) o;
+
+            if (x != node.x) return false;
+            if (y != node.y) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = x;
+            result = 31 * result + y;
+            return result;
+        }
+
+        public Iterator<Node> neighbours() {
+            return new Iterator<Node>() {
+                private int current = 0;
+
+                private int[] xOffsets = {1, 0, 0};
+                private int[] yOffsets = { 0,-1, 1};
+
+                @Override
+                public boolean hasNext() {
+                    if(current >= xOffsets.length) {
+                        return false;
+                    }
+
+                    while(( x + xOffsets[current]  < 0 || x + xOffsets[current] >= size) ||
+                            ( y + yOffsets[current]  < 0 || y + yOffsets[current] >= size)) {
+                        current++;
+                        if(current == xOffsets.length) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                @Override
+                public Node next() {
+                    if(current ==  xOffsets.length) {
+                        return null;
+                    }
+
+                    Node result = new Node(x + xOffsets[current], y + yOffsets[current++]);
+
+                    current++;
+
+                    return result;
+                }
+            };
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", cost=" + cost +
+                    '}';
+        }
     }
 }
