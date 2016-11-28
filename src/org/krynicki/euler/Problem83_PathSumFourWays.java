@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Created by K on 2016-11-27.
  */
-public class Problem82_PathSumThreeWays {
+public class Problem83_PathSumFourWays {
 
 
     static int[][] memo;
@@ -93,21 +93,20 @@ public class Problem82_PathSumThreeWays {
                 if (i > 0) {
                     graphMatrix[i - 1][j].addNeighbour(graphMatrix[i][j]);
                 }
+
+                if (i < size - 1) {
+                    graphMatrix[i + 1][j].addNeighbour(graphMatrix[i][j]);
+                }
             }
         }
 
         sink = new Node();
 
-        for (int i = 0; i < size; i++) {
-            graphMatrix[size - 1][i].addNeighbour(sink);
-        }
+        graphMatrix[size - 1][size - 1].addNeighbour(sink);
 
         source = new Node();
 
-        for (int i = 0; i < size; i++) {
-            source.addNeighbour(graphMatrix[0][i]);
-        }
-
+        source.addNeighbour(graphMatrix[0][0]);
         source.cost = 0;
 
         return source;
