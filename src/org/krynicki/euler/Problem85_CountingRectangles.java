@@ -6,15 +6,16 @@ import java.util.TreeSet;
  * Created by kamil.krynicki on 29/11/2016.
  */
 public class Problem85_CountingRectangles {
-    public static final int OBJECTIVE = 2000000;
+    // observation - I had this idea that the count of rectangles in a grid of p x q: C(p, q) = C(p - 1, q) + pC(1, q)
+
+    // it was about 20 mins of math, so I'll upload photos
     /*
     By counting carefully it can be seen that a rectangular grid measuring 3 by 2 contains eighteen rectangles:
 
     Although there exists no rectangular grid that contains exactly two million rectangles, find the area of the grid with the nearest solution.
     */
 
-    // observation - I had this idea that the count of rectangles in a grid of p x q: C(p, q) = C(p - 1, q) + pC(1, q)
-    // it was about 20 mins of math, so I'll upload photos
+    public static final int OBJECTIVE = 2000000;
 
     static int[][] memo;
 
