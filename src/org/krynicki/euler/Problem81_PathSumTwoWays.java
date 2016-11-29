@@ -1,9 +1,10 @@
 package org.krynicki.euler;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by K on 2016-11-27.
@@ -28,9 +29,9 @@ public class Problem81_PathSumTwoWays {
         //{805, 732, 524, 37, 331}};
         //size = 5;
 
-        printMatrix(matrix);
+        //printMatrix(matrix);
         System.out.println(solve());
-        printMatrix(memo);
+        //printMatrix(memo);
 
         long t2 = System.currentTimeMillis();
         System.out.print(t2-t1);
