@@ -21,7 +21,7 @@ public class Problem87_PrimePowerTriples {
     How many numbers below fifty million can be expressed as the sum of a prime square, prime cube, and prime fourth power?
     */
 
-    static Set<Integer> count;
+    static boolean[] counts;
     static int max;
     static PrimeGenerator generator;
 
@@ -32,15 +32,16 @@ public class Problem87_PrimePowerTriples {
 
         generator = PrimeGenerator.getPrimesBelow((int) Math.sqrt(max));
 
-        List<Set<Integer>> powers = new ArrayList<>();
-
-        count = new HashSet<>();
+        counts = new boolean[max];
 
         solve(4, 0);
 
-        System.out.println(count.size());
+        int sum = 0;
+        for(boolean c : counts) {
+            if(c) sum++;
+        }
 
-
+        System.out.println(sum);
 
         long t2 = System.currentTimeMillis();
         System.out.print(t2 - t1);
@@ -59,7 +60,7 @@ public class Problem87_PrimePowerTriples {
             for(int prime : generator.getPrimes()) {
                 int nextSum = currentSum + prime * prime;
                 if(nextSum < max) {
-                    count.add(nextSum);
+                    counts[nextSum] = true;
                 } else {
                     return;
                 }
