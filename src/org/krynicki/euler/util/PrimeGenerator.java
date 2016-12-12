@@ -1,7 +1,5 @@
 package org.krynicki.euler.util;
 
-import org.krynicki.euler.QuadraticPrimes;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
 
