@@ -1,8 +1,8 @@
 package org.krynicki.euler.Problems51to100;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 /**
  * Created by kamil.krynicki on 17/01/2017.
@@ -35,38 +35,81 @@ public class Problem93_ArithmeticExpressions {
 
         Component base = new Component();
 
-        Set<Component> dupa = base.sumChildren();
 
-        //System.out.println(dupa);
+
+        Set<Component> dupa = base.sumChildren();
 
         Set<Component> dupa2 = new HashSet<>();
         Set<Component> dupa3 = new HashSet<>();
         Set<Component> dupa4 = new HashSet<>();
 
-        System.out.println(dupa.size());
-
-
         for(Component a : dupa) {
             dupa2.addAll(a.children());
         }
-        System.out.println(dupa2.size());
 
         for(Component a : dupa2) {
             dupa3.addAll(a.children());
         }
-        System.out.println(dupa3.size());
-
 
         for(Component a : dupa3) {
             dupa4.addAll(a.children());
         }
 
-        System.out.println(dupa4.size());
-        System.out.println(dupa4);
+        Map<String, Set<Integer>> result = new HashMap<>();
+        for(Component c : dupa4) {
+            if(!result.containsKey(digits(c.digitsUsed))) {
+                result.put(digits(c.digitsUsed), new HashSet<>());
+            }
 
+            result.get(digits(c.digitsUsed)).add(c.val);
+        }
+
+        int maxSize =0;
+        String maxKey = "";
+
+        for(Map.Entry<String, Set<Integer>> entry : result.entrySet()) {
+            String key = entry.getKey();
+            System.out.println(entry.getKey());
+            int size = entry.getValue().stream().filter(t -> t > 0).sorted().reduce(new LinkedList<Integer>(), new BiFunction<LinkedList<Integer>, Integer, LinkedList<Integer>>() {
+                @Override
+                public LinkedList<Integer> apply(LinkedList<Integer> integers, Integer integer) {
+                    integers.add(integer);
+                    if(integers.size() == integer) {
+                        return integers;
+                    }
+                    else  {
+                        integers.pollLast();
+                        return integers;
+                    }
+                }
+            }, (integers, integers2) -> { integers.addAll(integers2); return  integers;}).size();
+            System.out.println(size);
+            System.out.println(Arrays.toString(entry.getValue().stream().sorted().toArray()));
+
+            if(size > maxSize) {
+                maxSize = size;
+                maxKey = key;
+            }
+        }
+
+        System.out.println(maxKey);
+        System.out.println(maxSize);
 
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
+    }
+
+    static private String digits(boolean[] digitsUsed) {
+        StringBuilder result = new StringBuilder();
+
+        for(int i=0;i<10;i++) {
+            if(digitsUsed[i]) {
+                result.append(i);
+                result.append(";");
+            }
+        }
+
+        return result.toString();
     }
 
     static class Component {
@@ -144,18 +187,18 @@ public class Problem93_ArithmeticExpressions {
             return result;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Component component = (Component) o;
-
-            if (val != component.val) return false;
-            if (!Arrays.equals(digitsUsed, component.digitsUsed)) return false;
-
-            return true;
-        }
+        //@Override
+        //public boolean equals(Object o) {
+        //    if (this == o) return true;
+        //    if (o == null || getClass() != o.getClass()) return false;
+//
+        //    Component component = (Component) o;
+//
+        //    if (val != component.val) return false;
+        //    if (!Arrays.equals(digitsUsed, component.digitsUsed)) return false;
+//
+        //    return true;
+        //}
 
         @Override
         public int hashCode() {
@@ -165,20 +208,7 @@ public class Problem93_ArithmeticExpressions {
         }
 
         public String toString() {
-            return val + " with "+ digits().toString();
-        }
-
-        private StringBuilder digits() {
-            StringBuilder result = new StringBuilder();
-
-            for(int i=0;i<10;i++) {
-                if(digitsUsed[i]) {
-                    result.append(i);
-                    result.append(";");
-                }
-            }
-
-            return result;
+            return val + " with "+ digits(digitsUsed);
         }
     }
 }
