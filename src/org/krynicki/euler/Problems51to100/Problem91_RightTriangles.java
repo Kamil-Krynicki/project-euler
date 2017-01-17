@@ -1,7 +1,5 @@
 package org.krynicki.euler.Problems51to100;
 
-import java.io.IOException;
-
 /**
  * Created by K on 2017-01-16.
  */
@@ -17,7 +15,7 @@ There are exactly fourteen triangles containing a right angle that can be formed
 Given that 0 ≤ x1, y1, x2, y2 ≤ 50, how many right triangles can be formed?
  */
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
 
         int max = 50;
@@ -30,7 +28,7 @@ Given that 0 ≤ x1, y1, x2, y2 ≤ 50, how many right triangles can be formed?
                 for (int y2 = y1; y2 >= 0; y2--) {
                     for (int x2 = (y2 < y1 ? 0 : x1 + 1); x2 <= max; x2++) {
                         if (y2 == 0 && x2 == 0) continue;
-                        if (areRightTriangle(0, 0, x1, y1, x2, y2)) {
+                        if (isRightTriangle(0, 0, x1, y1, x2, y2)) {
                             v++;
                         }
                     }
@@ -43,15 +41,13 @@ Given that 0 ≤ x1, y1, x2, y2 ≤ 50, how many right triangles can be formed?
         System.out.println(t2 - t1);
     }
 
-    private static boolean areRightTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
-        return isRightAngle(x1 - x0, y1 - y0, x2 - x0, y2 - y0) ||
-                isRightAngle(x0 - x1, y0 - y1, x2 - x1, y2 - y1) ||
-                isRightAngle(x1 - x2, y1 - y2, x0 - x2, y0 - y2);
+    private static boolean isRightTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
+        return isPerpendicular(x1 - x0, y1 - y0, x2 - x0, y2 - y0) ||
+                isPerpendicular(x0 - x1, y0 - y1, x2 - x1, y2 - y1) ||
+                isPerpendicular(x1 - x2, y1 - y2, x0 - x2, y0 - y2);
     }
 
-    private static boolean isRightAngle(int xA, int yA, int xB, int yB) {
+    private static boolean isPerpendicular(int xA, int yA, int xB, int yB) {
         return (xA * xB + yA * yB) == 0;
-
     }
-
 }
