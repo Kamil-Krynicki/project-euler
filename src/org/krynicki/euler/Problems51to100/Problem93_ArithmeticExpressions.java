@@ -1,8 +1,11 @@
 package org.krynicki.euler.Problems51to100;
 
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by kamil.krynicki on 17/01/2017.
@@ -36,64 +39,39 @@ public class Problem93_ArithmeticExpressions {
         Component base = new Component();
 
 
+        Set<Component> digit1 = new HashSet<>();
 
-        Set<Component> dupa = base.sumChildren();
-
-        Set<Component> dupa2 = new HashSet<>();
-        Set<Component> dupa3 = new HashSet<>();
-        Set<Component> dupa4 = new HashSet<>();
-
-        for(Component a : dupa) {
-            dupa2.addAll(a.children());
+        for (int i = 0; i < 10; i++) {
+            digit1.add(new Component(i));
         }
 
-        for(Component a : dupa2) {
-            dupa3.addAll(a.children());
-        }
+        final Set<Component> digit2;
+        final Set<Component> digit3;
+        final Set<Component> digit4;
 
-        for(Component a : dupa3) {
-            dupa4.addAll(a.children());
-        }
+        digit2 = digit1.stream().map(t -> t.children(digit1)).flatMap(t->t.stream()).collect(Collectors.toSet());
+        digit3 = digit2.stream().map(t -> t.children(digit1)).flatMap(t->t.stream()).collect(Collectors.toSet());
+        digit4 = digit3.stream().map(t -> t.children(digit1)).flatMap(t->t.stream()).collect(Collectors.toSet());
+        digit4.addAll(digit2.stream().map(t -> t.children(digit2)).flatMap(t->t.stream()).collect(Collectors.toSet()));
 
-        Map<String, Set<Integer>> result = new HashMap<>();
-        for(Component c : dupa4) {
-            if(!result.containsKey(digits(c.digitsUsed))) {
-                result.put(digits(c.digitsUsed), new HashSet<>());
-            }
+        Map<String, List<Integer>> result = digit4.stream()
+                .collect(Collectors.groupingBy(Component::getDigitsUsed, Collectors.mapping(Component::getVal, Collectors.toList())));
 
-            result.get(digits(c.digitsUsed)).add(c.val);
-        }
+        Map.Entry<String, Integer> collect = result.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, t -> {
+                    List<Integer> sorted = t.getValue().stream()
+                            .filter(v -> v > 0)
+                            .sorted()
+                            .collect(Collectors.toList());
+                    return sorted.stream()
+                            .filter(v -> sorted.indexOf(v) == v - 1)
+                            .collect(Collectors.toList()).size();
+                }))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .get();
 
-        int maxSize =0;
-        String maxKey = "";
-
-        for(Map.Entry<String, Set<Integer>> entry : result.entrySet()) {
-            String key = entry.getKey();
-            System.out.println(entry.getKey());
-            int size = entry.getValue().stream().filter(t -> t > 0).sorted().reduce(new LinkedList<Integer>(), new BiFunction<LinkedList<Integer>, Integer, LinkedList<Integer>>() {
-                @Override
-                public LinkedList<Integer> apply(LinkedList<Integer> integers, Integer integer) {
-                    integers.add(integer);
-                    if(integers.size() == integer) {
-                        return integers;
-                    }
-                    else  {
-                        integers.pollLast();
-                        return integers;
-                    }
-                }
-            }, (integers, integers2) -> { integers.addAll(integers2); return  integers;}).size();
-            System.out.println(size);
-            System.out.println(Arrays.toString(entry.getValue().stream().sorted().toArray()));
-
-            if(size > maxSize) {
-                maxSize = size;
-                maxKey = key;
-            }
-        }
-
-        System.out.println(maxKey);
-        System.out.println(maxSize);
+        System.out.println(collect);
 
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
@@ -102,8 +80,8 @@ public class Problem93_ArithmeticExpressions {
     static private String digits(boolean[] digitsUsed) {
         StringBuilder result = new StringBuilder();
 
-        for(int i=0;i<10;i++) {
-            if(digitsUsed[i]) {
+        for (int i = 0; i < 10; i++) {
+            if (digitsUsed[i]) {
                 result.append(i);
                 result.append(";");
             }
@@ -116,9 +94,25 @@ public class Problem93_ArithmeticExpressions {
         private boolean[] digitsUsed;
         private int val;
 
-        public Component(Component base, int digitUsed, int newVal) {
-            this.digitsUsed = Arrays.copyOf(base.digitsUsed, 10);
+        public String getDigitsUsed() {
+            return digits(digitsUsed);
+        }
+
+        public int getVal() {
+            return val;
+        }
+
+        public Component(int digitUsed) {
+            this.digitsUsed = new boolean[10];
             this.digitsUsed[digitUsed] = true;
+            this.val = digitUsed;
+        }
+
+        public Component(Component baseA, Component baseB, int newVal) {
+            this.digitsUsed = new boolean[10];
+            for (int i = 0; i < 10; i++) {
+                this.digitsUsed[i] = baseA.digitsUsed[i] || baseB.digitsUsed[i];
+            }
             this.val = newVal;
         }
 
@@ -127,78 +121,80 @@ public class Problem93_ArithmeticExpressions {
             val = 0;
         }
 
-        public Set<Component> children() {
+        public Set<Component> children(Set<Component> toCombine) {
             Set<Component> result = new HashSet<>();
-                result.addAll(sumChildren());
-                result.addAll(divChildren());
-                result.addAll(mulChildren());
-                result.addAll(subChildren());
+            result.addAll(sumChildren(toCombine));
+            result.addAll(divChildren(toCombine));
+            result.addAll(mulChildren(toCombine));
+            result.addAll(subChildren(toCombine));
             return result;
         }
 
-        private Set<Component> sumChildren() {
-            Set<Component> result = new HashSet<>();
+        private Set<Component> sumChildren(Set<Component> toCombine) {
+            return toCombine.stream()
+                    .filter(this::canCombine)
+                    .map(t -> new Component(t, this, this.val + t.val))
+                    .collect(Collectors.toSet());
+        }
 
-            for(int i=0;i<10;i++) {
-                if(!digitsUsed[i]) {
-                    result.add(new Component(this, i, this.val+i));
-                }
+        private Set<Component> mulChildren(Set<Component> toCombine) {
+            return toCombine.stream()
+                    .filter(this::canCombine)
+                    .map(t -> new Component(this, t, this.val * t.val))
+                    .collect(Collectors.toSet());
+        }
+
+        private Set<Component> divChildren(Set<Component> toCombine) {
+            Set<Component> result = toCombine.stream()
+                    .filter(t -> t.val > 0)
+                    .filter(this::canCombine)
+                    .filter(t -> this.val % t.val == 0)
+                    .map(t -> new Component(this, t, this.val / t.val))
+                    .collect(Collectors.toSet());
+
+            if(this.val > 0) {
+                result.addAll(toCombine.stream()
+                        .filter(this::canCombine)
+                        .filter(t -> t.val % this.val == 0)
+                        .map(t -> new Component(this, t, t.val / this.val))
+                        .collect(Collectors.toSet()));
             }
 
             return result;
         }
 
-        private Set<Component> mulChildren() {
-            Set<Component> result = new HashSet<>();
-
-            for(int i=0;i<10;i++) {
-                if(!digitsUsed[i]) {
-                    result.add(new Component(this, i, this.val*i));
-                }
-            }
-
-            return result;
-        }
-
-        private Set<Component> divChildren() {
-            Set<Component> result = new HashSet<>();
-
-            for(int i=0;i<10;i++) {
-                if(!digitsUsed[i]) {
-                    if(i > 0 && this.val % i == 0) result.add(new Component(this, i, this.val/i));
-                    if(this.val > 0 && i % this.val == 0) result.add(new Component(this, i, i/this.val));
-                }
-            }
-
-            return result;
+        private Set<Component> subChildren(Set<Component> toCombine) {
+            return toCombine.stream()
+                    .filter(this::canCombine)
+                    .map(t -> Arrays.asList(
+                            new Component(this, t, this.val - t.val),
+                            new Component(this, t, t.val - this.val)
+                    ))
+                    .flatMap(t -> t.stream())
+                    .collect(Collectors.toSet());
         }
 
 
-        private Set<Component> subChildren() {
-            Set<Component> result = new HashSet<>();
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
-            for(int i=0;i<10;i++) {
-                if(!digitsUsed[i]) {
-                    if(this.val-i>=0) result.add(new Component(this, i, this.val-i));
-                    if(i-this.val>=0) result.add(new Component(this, i, i-this.val));
-                }
-            }
+            Component component = (Component) o;
 
-            return result;
+            if (val != component.val) return false;
+            if (!Arrays.equals(digitsUsed, component.digitsUsed)) return false;
+
+            return true;
         }
 
-        //@Override
-        //public boolean equals(Object o) {
-        //    if (this == o) return true;
-        //    if (o == null || getClass() != o.getClass()) return false;
-//
-        //    Component component = (Component) o;
-//
-        //    if (val != component.val) return false;
-        //    if (!Arrays.equals(digitsUsed, component.digitsUsed)) return false;
-//
-        //    return true;
-        //}
+        private boolean canCombine(Component that) {
+            for (int i = 0; i < 10; i++) {
+                if (this.digitsUsed[i] && that.digitsUsed[i]) return false;
+            }
+
+            return true;
+        }
 
         @Override
         public int hashCode() {
@@ -208,7 +204,7 @@ public class Problem93_ArithmeticExpressions {
         }
 
         public String toString() {
-            return val + " with "+ digits(digitsUsed);
+            return val + " with " + digits(digitsUsed);
         }
     }
 }
