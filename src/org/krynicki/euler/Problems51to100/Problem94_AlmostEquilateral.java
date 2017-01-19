@@ -22,48 +22,32 @@ public class Problem94_AlmostEquilateral {
 
         int max = (int) 1E9;
 
-        int a = 2;
-        int c = 3;
+        long c = (int) 3;
+        long a = 3;
 
         double area1;
         double area2;
         int hp;
         do {
-            if(c%4==0) {
+            if(true) {
                 a = c - 1;
-                area1 = c/4*Math.sqrt(4*a*a+c*c);
+                area1 = ((double)c/4)*Math.sqrt(4*a*a-c*c);
 
-                hp = a+c/2;
-
-                area2 = Math.sqrt(hp * (hp - a) * (hp - a) * (hp - c));
+                if(isInt(area1)) {
+                    System.out.println(area1);
+                    sum += 2*a+c;
+                }
 
                 a = c + 1;
+                area1 = ((double)c/4)*Math.sqrt(4*a*a-c*c);
+
+                if(isInt(area1)) {
+                    System.out.println(area1);
+                    sum += 2*a+c;
+                }
             }
             c++;
-
-
-            //c/4*sqrt(4*a*a+c*c)
-
-            // c = a - 1, c = a + 1
-
-           // System.out.println(Arrays.toString(sides));
-            //if(p%2==0 && p%3!=0){
-            //    hp = p / 2;
-//
-            //    //BigInteger kamil = BigInteger.valueOf(hp).multiply(BigInteger.valueOf((hp - a))).multiply(BigInteger.valueOf((hp - b))).multiply(BigInteger.valueOf((hp - c)));
-//
-            //    area1 = Math.sqrt(hp*(hp - sides[0])*(hp - sides[1])*(hp - sides[2]));
-            //    //System.out.println("-----");
-            //    //System.out.println(p);
-//
-            //    System.out.println(area1);
-            //    if (isInt(area1)) {
-            //        //System.out.println("Perimeter:" +p +" sides: "+sides[0]+", "+sides[1]+", "+sides[2]);
-            //        //System.out.println(Math.sqrt(hp * (hp - sides[0]) * (hp - sides[1]) * (hp - sides[2])));
-            //        sum += p;
-            //    }
-            //}
-        } while ( a <= max +1);
+        } while ( 2*a + c <= max);
 
         long t2 = System.currentTimeMillis();
 
@@ -73,7 +57,7 @@ public class Problem94_AlmostEquilateral {
 
     static boolean isInt(double d) {
         double v = (int) d - d;
-        return v < 0.001 && v > -0.001;
+        return v < 0.000001 && v > -0.000001;
     }
 
 }
