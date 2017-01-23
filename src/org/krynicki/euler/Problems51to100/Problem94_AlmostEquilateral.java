@@ -1,9 +1,12 @@
 package org.krynicki.euler.Problems51to100;
 
+import java.util.Set;
+
 /**
  * Created by kamil.krynicki on 19/01/2017.
  */
 public class Problem94_AlmostEquilateral {
+    private static Set<Long> squares;
     /*
     It is easily proved that no equilateral triangle exists with integral length sides and integral area. However,
     the almost equilateral triangle 5-5-6 has an area of 12 square units.
@@ -22,32 +25,14 @@ public class Problem94_AlmostEquilateral {
 
         int max = (int) 1E9;
 
-        long c = (int) 3;
-        long a = 3;
-
-        double area1;
-        double area2;
-        int hp;
+        long a = 6;
         do {
-            if(true) {
-                a = c - 1;
-                area1 = ((double)c/4)*Math.sqrt(4*a*a-c*c);
-
-                if(isInt(area1)) {
-                    System.out.println(area1);
-                    sum += 2*a+c;
-                }
-
-                a = c + 1;
-                area1 = ((double)c/4)*Math.sqrt(4*a*a-c*c);
-
-                if(isInt(area1)) {
-                    System.out.println(area1);
-                    sum += 2*a+c;
-                }
+            if((a+1)%4==0 || (a-1)%4==0) {
+                if(isSquare(area2(a, a + 1))) sum += 3 * a + 1;
+                else if(isSquare(area2(a, a - 1))) sum += 3 * a - 1;
             }
-            c++;
-        } while ( 2*a + c <= max);
+            a++;
+        } while ( a <= max/3);
 
         long t2 = System.currentTimeMillis();
 
@@ -55,9 +40,12 @@ public class Problem94_AlmostEquilateral {
         System.out.println(t2 - t1);
     }
 
-    static boolean isInt(double d) {
-        double v = (int) d - d;
-        return v < 0.000001 && v > -0.000001;
+    private static long area2(long a, long c) {
+        return (a-c/2)*(a+c/2);
     }
 
+    static boolean isSquare(long l) {
+        long l2=(long) Math.sqrt(l);
+        return l == l2 * l2;
+    }
 }
