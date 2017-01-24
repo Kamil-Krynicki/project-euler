@@ -1,6 +1,5 @@
 package org.krynicki.euler.Problems51to100;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
