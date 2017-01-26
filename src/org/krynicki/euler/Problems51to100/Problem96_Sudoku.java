@@ -1,10 +1,14 @@
 package org.krynicki.euler.Problems51to100;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.io.FileUtils;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -17,235 +21,229 @@ import java.util.stream.IntStream;
 public class Problem96_Sudoku {
 
 
-    static String sudokuSetup = "003020600,900305001,001806400,008102900,700000008,006708200,002609500,800203009,005010300";
-
-    public static void main(String[] args) {
+    static String sudokuSetu2 = "003020600,900305001,001806400,008102900,700000008,006708200,002609500,800203009,005010300";
+    static String sudokuSetup = "483921600,967345821,251876493,008132976,729564138,006798200,002689500,800253069,695017382";
+    //static String sudokuSetup = "48392160,967345821,251876493,08132976,729564138,0679820,0268950,80253069,695017382";
+    public static void main(String[] args) throws IOException {
         long t1 = System.currentTimeMillis();
 
         SudokuModel m = new SudokuModel(9, 3);
 
+        List<String> strings = FileUtils.readLines(FileUtils.getFile(args[0]), Charset.defaultCharset());
+
         int x = 0;
-        for (String row : sudokuSetup.split(",")) {
-            int y = 0;
+        int y = 0;
+        for (String row : strings) {
+            if (row.contains("Grid"))
+                continue;
+
+            y = 0;
             for (char c : row.toCharArray()) {
                 int value = c - '0';
-                if (value > 0) m.put(value, x, y);
+                if (value > 0) m.set(value, x, y);
                 y++;
             }
             x++;
+
+            if (x == 9) {
+                System.out.println("BEFORE");
+                System.out.println(m);
+                SudokuSolver.solve(m);
+                System.out.println("AFTER");
+                System.out.println(m);
+                m = new SudokuModel(9, 3);
+                x = 0;
+            }
         }
 
-        System.out.println(m);
-        m.solve();
-        System.out.println(m);
 
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
     }
 
-    static class SudokuModel {
-        private final Set<SudokuLayer> layers;
-        private final int[][] board;
-
-        private int emptySpaces;
-
-        public SudokuModel(int size, int blockSize) {
-            Preconditions.checkArgument(size > 0);
-            Preconditions.checkArgument(blockSize > 0);
-            Preconditions.checkArgument(blockSize < size);
-
-            this.board = new int[size][size];
-            this.emptySpaces = size * size;
-
-            this.layers = new HashSet<>();
-
-            for (int i = 1; i < 10; i++)
-                this.layers.add(new SudokuLayer(size, blockSize, i));
-        }
-
-        public void put(int value, int atX, int atY) {
-            Preconditions.checkArgument(atX >= 0);
-            Preconditions.checkArgument(atY >= 0);
-
-            Preconditions.checkArgument(atX < board.length);
-            Preconditions.checkArgument(atY < board[0].length);
-
-            for (SudokuLayer layer : layers) {
-                if (layer.symbol() != value)
-                    layer.occupy(atX, atY);
-                else
-                    layer.put(atX, atY);
-            }
-
-            board[atX][atY] = value;
-            emptySpaces--;
-        }
-
-        public boolean isSolved() {
-            return emptySpaces == 0;
-        }
-
-        public void solve() {
+    static class SudokuSolver {
+        public static void solve(SudokuModel model) {
             Coords coords = null;
 
+            Deque<SudokuModel> solutions = new LinkedList<>();
+
             do {
-                for (SudokuLayer layer : layers) {
-                    coords = layer.nextStep();
+                for(int v = 1; v< 10; v++) {
+                    coords = model.nextStep(v);
                     if (coords != null) {
-                        put(layer.symbol(), coords.x, coords.y);
+                        model.set(v, coords.x, coords.y);
+                        System.out.println("Placing "+v+" at "+coords.x+","+coords.y);
                         break;
                     }
                 }
-            } while (!isSolved() && coords != null);
+
+            } while (!model.isFull() && coords!=null);
 
             if (coords == null) {
-                System.out.print("Unable to make progress from:");
-                System.out.print(this);
+                System.out.println("Unable to make progress from");
             }
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder b = new StringBuilder();
-
-            for (int[] boardRow : board) {
-                for (int field : boardRow) {
-                    b.append('|');
-                    if (field == 0) b.append(' ');
-                    else b.append(field);
-                }
-                b.append("|\n");
-            }
-
-            return b.toString();
         }
     }
 
-    static class SudokuLayer {
-        private final int symbol;
-        private final boolean[][] occupied;
-        private final int size;
+    static class SudokuModel {
+        private final boolean[][][] board;
+        private final int[][] vals;
+
+        private final int boardSize;
         private final int blockSize;
+        private int emptySpaces;
 
-        SudokuLayer(int size, int blockSize, int symbol) {
-            Preconditions.checkArgument(size > 0);
+        public SudokuModel(int boardSize, int blockSize) {
+            Preconditions.checkArgument(boardSize > 0);
             Preconditions.checkArgument(blockSize > 0);
-            Preconditions.checkArgument(blockSize < size);
+            Preconditions.checkArgument(blockSize < boardSize);
 
-            this.symbol = symbol;
-            this.occupied = new boolean[size][size];
-            this.size = size;
+            this.board = new boolean[boardSize][boardSize][10];
+            this.vals = new int[boardSize][boardSize];
+            this.emptySpaces = boardSize * boardSize;
+
+            this.boardSize = boardSize;
             this.blockSize = blockSize;
         }
 
-        public void put(int x, int y) {
-            Preconditions.checkArgument(x < size);
-            Preconditions.checkArgument(y < size);
+        public void set(int value, int x, int y) {
             Preconditions.checkArgument(x >= 0);
             Preconditions.checkArgument(y >= 0);
 
-            Preconditions.checkArgument(isUnoccupied(x, y));
+            Preconditions.checkArgument(x < boardSize);
+            Preconditions.checkArgument(y < boardSize);
 
-            markColumn(x);
-            markRow(y);
-            markBlock(x, y);
+            Preconditions.checkArgument(!board[x][y][value]);
+
+            removeFromRow(value, y);
+            removeFromColumn(value, x);
+            removeFromBlock(value, x, y);
+
+            vals[x][y] = value;
+
+            emptySpaces--;
         }
 
-        public int symbol() {
-            return symbol;
+        private void removeFromRow(int value, int y) {
+            IntStream.range(0, boardSize).forEach(x -> board[x][y][value] = true);
         }
 
-        public void occupy(int x, int y) {
-            Preconditions.checkArgument(x < size);
-            Preconditions.checkArgument(y < size);
-            Preconditions.checkArgument(x >= 0);
-            Preconditions.checkArgument(y >= 0);
-
-            occupied[x][y] = true;
+        private void removeFromColumn(int value, int x) {
+            IntStream.range(0, boardSize).forEach(y -> board[x][y][value] = true);
         }
 
-        public Coords nextStep() {
-            for (int x = 0; x < size; x++)
-                if (hasUniquePlacementColumn(x))
-                    return getPlaceInColumn(x);
+        private void removeFromBlock(int value, int x, int y) {
+            int xOffset = x / (boardSize / blockSize) * blockSize;
+            int yOffset = y / (boardSize / blockSize) * blockSize;
 
-            for (int y = 0; y < size; y++)
-                if (hasUniquePlacementRow(y))
-                    return getPlaceInRow(y);
+            IntStream.range(xOffset, xOffset + blockSize)
+                    .forEach(xi -> IntStream.range(yOffset, yOffset + blockSize)
+                            .forEach(yi -> board[xi][yi][value] = true));
+        }
 
-            for (int y = 0; y < size; y += blockSize)
-                for (int x = 0; x < size; x += blockSize)
-                    if (hasUniquePlacementInBlock(x, y))
-                        return canPlaceUniquelyInBlock(x, y);
+        public boolean isFull() {
+            return emptySpaces == 0;
+        }
+
+        public Coords next() {
+            int value = 1;
+            Optional<Coords> next;
+            do {
+                next = IntStream.range(0, boardSize)
+                        .boxed()
+                        .flatMap(x -> IntStream.range(0, boardSize)
+                                        .filter(y -> !isFixed(x, y))
+                                        .filter(y -> !board[x][y][value])
+                                        .mapToObj(y -> new Coords(x, y))
+                        )
+                        .findFirst();
+            } while(!next.isPresent() || value > 9);
+
+            return next.isPresent() ? next.get() : null;
+        }
+
+        private boolean isFixed(Integer x, int y) {
+            return vals[x][y]>0;
+        }
+
+        public Coords nextStep(int v) {
+            for (int x = 0; x < boardSize; x++)
+                if (hasUniquePlacementColumn(x, v))
+                    return getPlaceInColumn(x, v);
+
+            for (int y = 0; y < boardSize; y++)
+                if (hasUniquePlacementRow(y, v))
+                    return getPlaceInRow(y, v);
+
+            for (int y = 0; y < boardSize; y += blockSize)
+                for (int x = 0; x < boardSize; x += blockSize)
+                    if (hasUniquePlacementInBlock(x, y, v))
+                        return canPlaceUniquelyInBlock(x, y, v);
 
             return null;
         }
 
-        public boolean hasUniquePlacementRow(int y) {
-            return IntStream.range(0, size).filter(t -> isUnoccupied(t, y)).count() == 1;
+
+        public boolean hasUniquePlacementRow(final int y, final int v) {
+            return IntStream.range(0, boardSize)
+                    .filter(x -> !isFixed(x, y))
+                    .filter(x -> !board[x][y][v])
+                    .count() == 1;
         }
 
-        private Coords getPlaceInRow(int y) {
-            return new Coords(IntStream.range(0, size).filter(t -> isUnoccupied(t, y)).findFirst().getAsInt(), y);
+        private Coords getPlaceInRow(final int y, final int v) {
+            return new Coords(IntStream.range(0, boardSize).filter(t -> !isFixed(t, y)).filter(x -> !board[x][y][v]).findFirst().getAsInt(), y);
         }
 
-        public boolean hasUniquePlacementColumn(int x) {
-            return IntStream.range(0, size).filter(t -> isUnoccupied(x, t)).count() == 1;
+        public boolean hasUniquePlacementColumn(final int x, final int v) {
+                return IntStream.range(0, boardSize)
+                        .filter(y -> !isFixed(x, y))
+                        .filter(y -> !board[x][y][v])
+                        .count() == 1;
         }
 
-        private Coords getPlaceInColumn(int x) {
-            return new Coords(x, IntStream.range(0, size).filter(t -> isUnoccupied(x, t)).findFirst().getAsInt());
+        private Coords getPlaceInColumn(final int x, final int v) {
+            return new Coords(x, IntStream.range(0, boardSize).filter(y -> !isFixed(x, y)).filter(y -> !board[x][y][v]).findFirst().getAsInt());
         }
 
-        private boolean isUnoccupied(int x, int y) {
-            return !occupied[x][y];
-        }
-
-        public boolean hasUniquePlacementInBlock(int x, int y) {
-            int xOffset = x / (size / blockSize) * blockSize;
-            int yOffset = y / (size / blockSize) * blockSize;
+        public boolean hasUniquePlacementInBlock(int x, int y, int v) {
+            int xOffset = x / (boardSize / blockSize) * blockSize;
+            int yOffset = y / (boardSize / blockSize) * blockSize;
 
             return IntStream.range(xOffset, xOffset + blockSize)
-                    .flatMap(t -> IntStream.range(yOffset, yOffset + blockSize)
-                            .filter(u -> isUnoccupied(t, u))).count() == 1;
+                    .flatMap(xi -> IntStream.range(yOffset, yOffset + blockSize)
+                            .filter(yi -> !isFixed(xi, yi))
+                            .filter(yi -> !board[xi][yi][v])
+                    )
+                    .count() == 1;
         }
 
-        private Coords canPlaceUniquelyInBlock(int x, int y) {
-            int xOffset = x / (size / blockSize) * blockSize;
-            int yOffset = y / (size / blockSize) * blockSize;
+        private Coords canPlaceUniquelyInBlock(int x, int y, int v) {
+            int xOffset = x / (boardSize / blockSize) * blockSize;
+            int yOffset = y / (boardSize / blockSize) * blockSize;
 
             return IntStream.range(xOffset, xOffset + blockSize)
                     .boxed()
-                    .flatMap(t -> IntStream.range(yOffset, yOffset + blockSize)
-                            .filter(u -> isUnoccupied(t, u))
-                            .mapToObj(u -> new Coords(t, u)))
+                    .flatMap(xi -> IntStream.range(yOffset, yOffset + blockSize)
+                            .filter(yi -> !isFixed(xi, yi))
+                            .filter(yi -> !board[xi][yi][v])
+                            .mapToObj(yi -> new Coords(xi, yi)))
                     .findAny()
                     .get();
         }
 
-        private void markRow(int y) {
-            IntStream.range(0, size).forEach(t -> occupy(t, y));
-        }
-
-        private void markColumn(int x) {
-            IntStream.range(0, size).forEach(t -> occupy(x, t));
-        }
-
-        private void markBlock(int x, int y) {
-            int xOffset = x / (size / blockSize) * blockSize;
-            int yOffset = y / (size / blockSize) * blockSize;
-
-            IntStream.range(xOffset, xOffset + blockSize)
-                    .forEach(t -> IntStream.range(yOffset, yOffset + blockSize)
-                            .forEach(u -> occupy(t, u)));
-        }
 
         @Override
         public String toString() {
             StringBuilder b = new StringBuilder();
-            for (boolean[] row : occupied) {
-                for (boolean field : row) {
-                    b.append(field ? 'x' : 'o');
+
+
+            for (int x = 0; x < boardSize; x++) {
+                for (int y = 0; y < boardSize; y++) {
+                    if (isFixed(x, y)) b.append(vals[x][y]);
+                    else {
+                        b.append('x');
+                    }
                 }
                 b.append('\n');
             }
@@ -253,7 +251,6 @@ public class Problem96_Sudoku {
             return b.toString();
         }
     }
-
 
     static class Coords {
         public final int x;
