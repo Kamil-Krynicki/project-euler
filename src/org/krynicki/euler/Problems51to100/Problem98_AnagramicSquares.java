@@ -52,16 +52,16 @@ public class Problem98_AnagramicSquares {
         //System.out.println(anagrams2.size());
         Map<String, List<String>> collect2 = anagrams2.entrySet().stream()
                 .filter(t -> t.getValue().size() > 1)
-                .filter(t -> t.getKey().length() == 3)
+                //.filter(t -> t.getKey().length() == 3)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        System.out.println(collect2);
+        System.out.println(collect2.size());
 
 
         Set<Long> squares = new HashSet<>();
         Set<String> patterns = new HashSet<>();
         Map<String, List<String>> anagrams = new HashMap<>();
 
-        for (long i = 1, j = 1; j < 1E3; i++, j += 2 * i - 1) {
+        for (long i = 1, j = 1; j < 1E10; i++, j += 2 * i - 1) {
             String s = toBucket(j);
             if (!anagrams.containsKey(s)) {
                 anagrams.put(s, new LinkedList<>());
@@ -75,20 +75,8 @@ public class Problem98_AnagramicSquares {
         Map<String, List<String>> collect = anagrams.entrySet().stream()
                 .filter(t -> t.getValue().size() > 1)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        System.out.println(collect);
-
-        List<String> how = collect2.get("HOW");
-        List<String> x = collect.get("256");
-
-        for (int i = 0; i < how.size(); i++) {
-            for (int j = 0; j < how.size(); j++) {
-                System.out.print(how.get(i).toCharArray()[j] - x.get(i).toCharArray()[j] - 'A' - '0');
-            }
-            System.out.println();
-        }
-
-        System.out.println(how);
-        System.out.println(x);
+        //System.out.println(collect);
+        System.out.println(collect.size());
 
         //for(List<String> a : collect2.values()) {
         //    for(int i = 0; i<a.size(); i++) {
