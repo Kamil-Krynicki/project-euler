@@ -4,12 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,60 +28,70 @@ NOTE: All anagrams formed must be contained in the given text file.
 
 public class Problem98_AnagramicSquares {
     public static void main(String... args) throws IOException {
-
         long t1 = System.currentTimeMillis();
+
         BufferedReader fr = new BufferedReader(new FileReader(new File(args[0])));
 
-        Map<String, List<String>> anagrams = new HashMap<>();
+        Map<Integer, Map<String, List<String>>> textAnagrams = getAnagrams(Arrays.stream(fr.readLine().split(",")).map(t -> t.substring(1, t.length() - 1)).collect(Collectors.toList()));
 
-        for (String s : fr.readLine().split(",")) {
-            s = s.substring(1, s.length() - 1);
-            String s2 = toBucket(s);
-            if (!anagrams.containsKey(s2)) {
-                anagrams.put(s2, new LinkedList<>());
-            }
-            anagrams.get(s2).add(s);
-        }
+        int max = Collections.max(textAnagrams.keySet())-1;
 
-        Map<Integer, Map<String, List<String>>> collectA = anagrams.entrySet()
-                .stream()
-                .filter(t -> t.getValue().size() > 1)
-                .collect(Collectors.groupingBy(t -> t.getKey().length(), Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-        int max = collectA.keySet().stream().max(Comparator.<Integer>naturalOrder()).get() - 1;
-
-        Map<String, List<String>> patterns = new HashMap<>();
-        for (long j = 1; j * j < Math.pow(10, max); j++) {
-            String s = toBucket(j * j);
-            if (!patterns.containsKey(s)) {
-                patterns.put(s, new LinkedList<>());
-            }
-            patterns.get(s).add(String.valueOf(j * j));
-        }
-
-        Map<Integer, Map<String, List<String>>> collectB = patterns.entrySet()
-                .stream()
-                .filter(t -> t.getValue().size() > 1)
-                .collect(Collectors.groupingBy(t -> t.getKey().length(), Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
+        Map<Integer, Map<String, List<String>>> numericalAnagrams = getAnagrams(getSquares(max));
 
         for(int i = max; i > 0; i--) {
-           if(checkAnagrams(collectA.get(i), collectB.get(i))) break;
+           if(canTranslate(textAnagrams.get(i), numericalAnagrams.get(i)))
+               break;
         }
 
-
         long t2 = System.currentTimeMillis();
-
 
         System.out.println(t2 - t1);
     }
 
-    private static boolean checkAnagrams(Map<String, List<String>> anagrams, Map<String, List<String>> patterns) {
-        if(anagrams == null || patterns == null)
+    private static Set<String> getSquares(int max) {
+        Set<String> squares = new HashSet<>();
+        for (long j = 1; j * j < Math.pow(10, max); j++) {
+            squares.add(String.valueOf(j*j));
+        }
+        return squares;
+    }
+
+    private static Map<Integer, Map<String, List<String>>> getAnagrams(Iterable<String> strings) throws IOException {
+        Map<String, List<String>> anagrams = new HashMap<>();
+
+        for (String s : strings) {
+            String bucket = anagramBucket(s);
+            if (!anagrams.containsKey(bucket)) {
+                anagrams.put(bucket, new LinkedList<>());
+            }
+            anagrams.get(bucket).add(s);
+        }
+
+        return anagrams.entrySet()
+                .stream()
+                .filter(t -> t.getValue().size() > 1)
+                .collect(Collectors
+                        .groupingBy(
+                                t -> t.getKey().length(),
+                                Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)
+                        )
+                );
+    }
+
+    private static String anagramBucket(String i) {
+        char[] data = i.toCharArray();
+
+        Arrays.sort(data);
+
+        return String.valueOf(data);
+    }
+
+    private static boolean canTranslate(Map<String, List<String>> fromAnagrams, Map<String, List<String>> toAnagrams) {
+        if(fromAnagrams == null || toAnagrams == null)
             return false;
 
-        for(List<String> words : anagrams.values()) {
-            for(List<String> squares : patterns.values()) {
+        for(List<String> words : fromAnagrams.values()) {
+            for(List<String> squares : toAnagrams.values()) {
                 if(existsMatch(words, squares)) {
                     System.out.println(words);
                     System.out.println(squares);
@@ -98,16 +103,16 @@ public class Problem98_AnagramicSquares {
         return false;
     }
 
-    public static boolean existsMatch(List<String> words, List<String> numbers) {
+    private static boolean existsMatch(List<String> words, List<String> numbers) {
         for (int j = 0; j < words.size() - 1; j++) {
             for (int i = 0; i < numbers.size() - 1; i++) {
-                int[] map = map(words.get(j).toCharArray(), numbers.get(i).toCharArray());
+                int[] map = map(words.get(j), numbers.get(i));
 
-                if(!isValid(map)) break;
+                if(!isValid(map))
+                    break;
 
                 for (int k = j + 1; k < words.size(); k++) {
-                    String word3 = unmap(words.get(k).toCharArray(), map);
-                    if(numbers.contains(word3)) {
+                    if(numbers.contains(unmap(words.get(k), map))) {
                         return true;
                     }
                 }
@@ -118,29 +123,29 @@ public class Problem98_AnagramicSquares {
     }
 
     private static boolean isValid(int[] map) {
-        long sizeA = IntStream.range(0, map.length).map(t -> map[t]).filter(t -> t >= 0).count();
-        long sizeB = IntStream.range(0, map.length).map(t -> map[t]).filter(t -> t >= 0).distinct().count();
+        long length = IntStream.range(0, map.length).map(t -> map[t]).filter(t -> t >= 0).count();
+        long distinct = IntStream.range(0, map.length).map(t -> map[t]).filter(t -> t >= 0).distinct().count();
 
-        return sizeA == sizeB;
+        return length == distinct;
     }
 
-    public static int[] map(char[] chars, char[] vals) {
+    private static int[] map(String from, String to) {
         int[] result = new int['Z' - 'A' + 1];
 
         Arrays.fill(result, -1);
 
-        for (int i = chars.length - 1; i >= 0; i--) {
-            result[chars[i] - 'A'] = vals[i] - '0';
+        for (int i = from.length() - 1; i >= 0; i--) {
+            result[from.charAt(i) - 'A'] = to.charAt(i) - '0';
         }
 
         return result;
     }
 
-    public static String unmap(char[] chars, int[] map) {
+    private static String unmap(String chars, int[] map) {
         long result = 0;
 
-        for (char c : chars) {
-            result += map[c - 'A'];
+        for (int i = 0; i< chars.length(); i++) {
+            result += map[chars.charAt(i) - 'A'];
             result *= 10;
         }
 
@@ -149,19 +154,4 @@ public class Problem98_AnagramicSquares {
         return String.valueOf(result);
     }
 
-    public static String toBucket(String i) {
-        char[] data = i.toCharArray();
-
-        Arrays.sort(data);
-
-        return String.valueOf(data);
-    }
-
-    public static String toBucket(long i) {
-        char[] data = String.valueOf(i).toCharArray();
-
-        Arrays.sort(data);
-
-        return String.valueOf(data);
-    }
 }
