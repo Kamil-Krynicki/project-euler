@@ -5,13 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by kamil.krynicki on 14/02/2017.
@@ -37,63 +37,42 @@ public class Problem98_AnagramicSquares {
         long t1 = System.currentTimeMillis();
         BufferedReader fr = new BufferedReader(new FileReader(new File(args[0])));
 
-        Map<String, List<String>> anagrams2 = new HashMap<>();
+        Map<String, List<String>> anagrams = new HashMap<>();
 
         for (String s : fr.readLine().split(",")) {
             s = s.substring(1, s.length() - 1);
             String s2 = toBucket(s);
-            if (!anagrams2.containsKey(s2)) {
-                anagrams2.put(s2, new LinkedList<>());
+            if (!anagrams.containsKey(s2)) {
+                anagrams.put(s2, new LinkedList<>());
             }
-            anagrams2.get(s2).add(s);
+            anagrams.get(s2).add(s);
         }
 
-        //System.out.println(anagrams2);
-        //System.out.println(anagrams2.size());
-        Map<String, List<String>> collect2 = anagrams2.entrySet().stream()
+        Map<Integer, Map<String, List<String>>> collectA = anagrams.entrySet()
+                .stream()
                 .filter(t -> t.getValue().size() > 1)
-                //.filter(t -> t.getKey().length() == 3)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        System.out.println(collect2.size());
+                .collect(Collectors.groupingBy(t -> t.getKey().length(), Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
+        int max = collectA.keySet().stream().max(Comparator.<Integer>naturalOrder()).get() - 1;
 
-        Set<Long> squares = new HashSet<>();
-        Set<String> patterns = new HashSet<>();
-        Map<String, List<String>> anagrams = new HashMap<>();
-
-        for (long i = 1, j = 1; j < 1E10; i++, j += 2 * i - 1) {
-            String s = toBucket(j);
-            if (!anagrams.containsKey(s)) {
-                anagrams.put(s, new LinkedList<>());
+        Map<String, List<String>> patterns = new HashMap<>();
+        for (long j = 1; j * j < Math.pow(10, max); j++) {
+            String s = toBucket(j * j);
+            if (!patterns.containsKey(s)) {
+                patterns.put(s, new LinkedList<>());
             }
-            anagrams.get(s).add(String.valueOf(j));
+            patterns.get(s).add(String.valueOf(j * j));
         }
 
-
-        //System.out.println(anagrams);
-        //System.out.println(anagrams.size());
-        Map<String, List<String>> collect = anagrams.entrySet().stream()
+        Map<Integer, Map<String, List<String>>> collectB = patterns.entrySet()
+                .stream()
                 .filter(t -> t.getValue().size() > 1)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        //System.out.println(collect);
-        System.out.println(collect.size());
+                .collect(Collectors.groupingBy(t -> t.getKey().length(), Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
-        //for(List<String> a : collect2.values()) {
-        //    for(int i = 0; i<a.size(); i++) {
-        //        for(Long val : squares) {
-        //           int[] map = map(a.get(i).toCharArray(), val);
-        //            for(int j = i + 1; j<a.size(); j++) {
-        //                if(squares.contains(unmap(a.get(j).toCharArray(), map))) {
-        //                    System.out.println(a.get(i));
-        //                    System.out.println(a.get(j));
-        //                    System.out.println(val);
-        //                    System.out.println(unmap(a.get(j).toCharArray(), map));
-        //                    System.out.println("================");
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+
+        for(int i = max; i > 0; i--) {
+           if(checkAnagrams(collectA.get(i), collectB.get(i))) break;
+        }
 
 
         long t2 = System.currentTimeMillis();
@@ -102,18 +81,62 @@ public class Problem98_AnagramicSquares {
         System.out.println(t2 - t1);
     }
 
-    public static int[] map(char[] chars, long vals) {
+    private static boolean checkAnagrams(Map<String, List<String>> anagrams, Map<String, List<String>> patterns) {
+        if(anagrams == null || patterns == null)
+            return false;
+
+        for(List<String> words : anagrams.values()) {
+            for(List<String> squares : patterns.values()) {
+                if(existsMatch(words, squares)) {
+                    System.out.println(words);
+                    System.out.println(squares);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean existsMatch(List<String> words, List<String> numbers) {
+        for (int j = 0; j < words.size() - 1; j++) {
+            for (int i = 0; i < numbers.size() - 1; i++) {
+                int[] map = map(words.get(j).toCharArray(), numbers.get(i).toCharArray());
+
+                if(!isValid(map)) break;
+
+                for (int k = j + 1; k < words.size(); k++) {
+                    String word3 = unmap(words.get(k).toCharArray(), map);
+                    if(numbers.contains(word3)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isValid(int[] map) {
+        long sizeA = IntStream.range(0, map.length).map(t -> map[t]).filter(t -> t >= 0).count();
+        long sizeB = IntStream.range(0, map.length).map(t -> map[t]).filter(t -> t >= 0).distinct().count();
+
+        return sizeA == sizeB;
+    }
+
+    public static int[] map(char[] chars, char[] vals) {
         int[] result = new int['Z' - 'A' + 1];
 
+        Arrays.fill(result, -1);
+
         for (int i = chars.length - 1; i >= 0; i--) {
-            result[chars[i] - 'A'] = (int) (vals % 10);
-            vals /= 10;
+            result[chars[i] - 'A'] = vals[i] - '0';
         }
 
         return result;
     }
 
-    public static long unmap(char[] chars, int[] map) {
+    public static String unmap(char[] chars, int[] map) {
         long result = 0;
 
         for (char c : chars) {
@@ -123,7 +146,7 @@ public class Problem98_AnagramicSquares {
 
         result /= 10;
 
-        return result;
+        return String.valueOf(result);
     }
 
     public static String toBucket(String i) {
