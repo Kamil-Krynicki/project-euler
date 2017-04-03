@@ -1,5 +1,10 @@
 package org.krynicki.euler.Problems51to100;
 
+import com.google.common.primitives.Doubles;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 /**
@@ -19,39 +24,42 @@ base/exponent pair on each line, determine which line number has the greatest nu
 NOTE: The first two lines in the file represent the numbers in the example given above.
  */
 public class Problem99_LargestExponential {
-    public static void main(String... args) {
-        System.out.println(isLarger(632382, 518061, 519432, 525806));
-        System.out.println(isLarger(519432, 525806, 632382, 518061));
-    }
+    public static void main(String... args) throws IOException {
 
-    public static boolean isLarger(double aBase, double aExponent, double bBase, double bExponent) {
-        if(aBase < bBase && aExponent < bExponent)
-            return true;
+        long t1 = System.currentTimeMillis();
 
-        if(aBase > bBase && aExponent > bExponent)
-            return false;
 
-        if(aBase < bBase && aExponent > bExponent) {
-            double newABase = aBase;
-            double newBBase = bBase / newABase;
+        BufferedReader fr = new BufferedReader(new FileReader(new File(args[0])));
 
-            double newAExponent = aExponent;
-            double newBExponent = bExponent / newAExponent;
+        double base, baseMax = 1;
+        double exp, expMax = 1;
 
-            return isLarger(newABase, newAExponent, newBBase, newBExponent);
+        int lineNo = 1, lineNoMax = -1;
+
+        String line;
+        while ((line = fr.readLine()) != null) {
+
+            String[] split = line.split(",");
+            base = Integer.valueOf(split[0]);
+            exp = Integer.valueOf(split[1]);
+
+            if(compare(base, exp, baseMax, expMax) > 0) {
+                baseMax = base;
+                expMax = exp;
+                lineNoMax = lineNo;
+            }
+
+            lineNo++;
         }
 
-        if(aBase > bBase && aExponent < bExponent) {
-            double newBBase = bBase;
-            double newABase = aBase / newBBase;
+        long t2= System.currentTimeMillis();
 
-            double newBExponent = bExponent;
-            double newAExponent = aExponent / newBExponent;
+        System.out.println(lineNoMax);
 
-            return isLarger(newABase, newAExponent, newBBase, newBExponent);
-        }
-
-        return false;
+        System.out.println(t2 - t1);
     }
 
+    public static int compare(double aBase, double aExponent, double bBase, double bExponent) {
+        return Doubles.compare(aExponent * Math.log(aBase),  bExponent * Math.log(bBase));
+    }
 }
