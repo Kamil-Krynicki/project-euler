@@ -27,7 +27,7 @@ public class Problem61_CyclicalFigurateNumbers {
     Octagonal	 	P8,n=n(3n−2)	 	1, 8, 21, 40, 65, ...
     The ordered set of three 4-digit numbers: 8128, 2882, 8281, has three interesting properties.
 
-    The set is cyclic, in that the last two digits of each number is the first two digits of the next number (including the last number with the first).
+    The set is cyclic, in that the last two digits of each number is the first two digits of the nakedVal number (including the last number with the first).
     Each polygonal type: triangle (P3,127=8128), square (P4,91=8281), and pentagonal (P5,44=2882), is represented by a different number in the set.
     This is the only set of 4-digit numbers with this property.
     Find the sum of the only ordered set of six cyclic 4-digit numbers for which each polygonal type: triangle,

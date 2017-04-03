@@ -5,10 +5,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 /**
@@ -23,6 +22,7 @@ public class Problem96_Sudoku {
 
     static String sudokuSetu2 = "003020600,900305001,001806400,008102900,700000008,006708200,002609500,800203009,005010300";
     static String sudokuSetup = "483921600,967345821,251876493,008132976,729564138,006798200,002689500,800253069,695017382";
+
     //static String sudokuSetup = "48392160,967345821,251876493,08132976,729564138,0679820,0268950,80253069,695017382";
     public static void main(String[] args) throws IOException {
         long t1 = System.currentTimeMillis();
@@ -65,22 +65,34 @@ public class Problem96_Sudoku {
         public static void solve(SudokuModel model) {
             Coords coords = null;
 
-            Deque<SudokuModel> solutions = new LinkedList<>();
-
             do {
-                for(int v = 1; v< 10; v++) {
+                for (int v = 1; v < 10; v++) {
                     coords = model.nextStep(v);
                     if (coords != null) {
+                        System.out.println("Val " + v + " to " + coords.x + "," + coords.y);
                         model.set(v, coords.x, coords.y);
-                        System.out.println("Placing "+v+" at "+coords.x+","+coords.y);
                         break;
                     }
                 }
 
-            } while (!model.isFull() && coords!=null);
+
+                if (coords == null) {
+                    coords = model.nakedVal();
+                    if (coords != null) {
+                        model.fix(coords.x, coords.y);
+                        System.out.println("Val naked  to " + coords.x + "," + coords.y);
+                    }
+                }
+
+                System.out.println(model);
+
+            } while (!model.isFull() && coords != null);
 
             if (coords == null) {
-                System.out.println("Unable to make progress from");
+                System.out.println("FAIL");
+
+            } else {
+                System.out.println("SUCCESS");
             }
         }
     }
@@ -104,6 +116,12 @@ public class Problem96_Sudoku {
 
             this.boardSize = boardSize;
             this.blockSize = blockSize;
+        }
+
+        public void fix(int x, int y) {
+            OptionalInt any = IntStream.range(1, 9).filter(v -> !board[x][y][v]).findAny();
+            Preconditions.checkArgument(any.isPresent());
+            set(any.getAsInt(), x, y);
         }
 
         public void set(int value, int x, int y) {
@@ -145,25 +163,21 @@ public class Problem96_Sudoku {
             return emptySpaces == 0;
         }
 
-        public Coords next() {
-            int value = 1;
-            Optional<Coords> next;
-            do {
-                next = IntStream.range(0, boardSize)
-                        .boxed()
-                        .flatMap(x -> IntStream.range(0, boardSize)
-                                        .filter(y -> !isFixed(x, y))
-                                        .filter(y -> !board[x][y][value])
-                                        .mapToObj(y -> new Coords(x, y))
-                        )
-                        .findFirst();
-            } while(!next.isPresent() || value > 9);
+        public Coords nakedVal() {
+            Optional<Coords> next = IntStream.range(0, boardSize)
+                    .boxed()
+                    .flatMap(x -> IntStream.range(0, boardSize)
+                            .filter(y -> !isFixed(x, y))
+                            .filter(y -> IntStream.rangeClosed(1, 9).filter(v -> !board[x][y][v]).count() == 1)
+                            .mapToObj(y -> new Coords(x, y))
+                    )
+                    .findFirst();
 
             return next.isPresent() ? next.get() : null;
         }
 
         private boolean isFixed(Integer x, int y) {
-            return vals[x][y]>0;
+            return vals[x][y] > 0;
         }
 
         public Coords nextStep(int v) {
@@ -196,10 +210,10 @@ public class Problem96_Sudoku {
         }
 
         public boolean hasUniquePlacementColumn(final int x, final int v) {
-                return IntStream.range(0, boardSize)
-                        .filter(y -> !isFixed(x, y))
-                        .filter(y -> !board[x][y][v])
-                        .count() == 1;
+            return IntStream.range(0, boardSize)
+                    .filter(y -> !isFixed(x, y))
+                    .filter(y -> !board[x][y][v])
+                    .count() == 1;
         }
 
         private Coords getPlaceInColumn(final int x, final int v) {

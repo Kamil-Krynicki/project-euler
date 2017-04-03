@@ -15,7 +15,7 @@ public class Problem45_TrianglePentagonHexagon {
     Hexagonal	 	Hn=n(2n−1)	 	1, 6, 15, 28, 45, ...
     It can be verified that T285 = P165 = H143 = 40755.
 
-    Find the next triangle n that is also pentagonal and hexagonal.
+    Find the nakedVal triangle n that is also pentagonal and hexagonal.
     */
 
     public static void main(String[] args) {
