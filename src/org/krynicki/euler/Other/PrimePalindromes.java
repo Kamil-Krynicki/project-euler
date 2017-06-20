@@ -4,7 +4,10 @@ import org.openjdk.jmh.annotations.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Created by K on 20.06.2017.
@@ -25,13 +28,26 @@ public class PrimePalindromes {
     @BenchmarkMode(value = Mode.AverageTime)
     @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
     @Threads(value = 4)
-    public void generationTest() {
+    public void generationDeclarative() {
         find(MAX_VAL);
     }
 
+    @Benchmark()
+    @BenchmarkMode(value = Mode.AverageTime)
+    @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
+    @Threads(value = 4)
+    public void generationFunctional() {
+        findFunctional(MAX_VAL);
+    }
+
     @Test
-    public void test() {
+    public void testDeclarative() {
         Assert.assertEquals(find(MAX_VAL), 159323951);
+    }
+
+    @Test
+    public void testFunctional() {
+        Assert.assertEquals(findFunctional(MAX_VAL), 159323951);
     }
 
     private static int find(int count) {
@@ -40,16 +56,22 @@ public class PrimePalindromes {
         int result = 0;
 
         while(found < count) {
-
-            if (isPrime(result = toInt(digits))) {
+            if (isPrime(result = toInt(digits)))
                 found++;
-            }
 
             digits = nextPalindrome(digits);
-
         }
 
         return result;
+    }
+
+    private static int findFunctional(int count) {
+        return Stream.iterate(new byte[]{2}, PrimePalindromes::nextPalindrome)
+                .mapToInt(PrimePalindromes::toInt)
+                .filter(PrimePalindromes::isPrime)
+                .limit(count)
+                .max()
+                .orElse(-1);
     }
 
     private static byte[] nextPalindrome(byte[] digits) {
@@ -76,10 +98,9 @@ public class PrimePalindromes {
     }
 
     private static boolean isPrime(int value) {
-        for (int i = 2; i <= Math.sqrt(value); i++) {
+        for (int i = 2; i <= Math.sqrt(value); i++)
             if (value % i == 0)
                 return false;
-        }
         return true;
     }
 
@@ -95,7 +116,4 @@ public class PrimePalindromes {
 
         return result;
     }
-
 }
-
-
