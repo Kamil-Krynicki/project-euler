@@ -55,7 +55,7 @@ public class PrimePalindromes {
         int found = 0;
         int result = 0;
 
-        while(found < count) {
+        while (found < count) {
             if (isPrime(result = toInt(digits)))
                 found++;
 
@@ -79,22 +79,18 @@ public class PrimePalindromes {
 
         int i = (len - 1) / 2 + 1;
 
-        while (--i >= 0) {
-            if (digits[i] < 9) {
-                digits[len - i - 1] = digits[i] = (byte) (digits[i] + 1);
-                return digits;
-            } else {
-                digits[len - i - 1] = digits[i] = 0;
-            }
+        while (--i >= 0 && digits[i] == 9)
+            digits[len - i - 1] = digits[i] = 0;
+
+        if (i < 0) {
+            i = 0;
+            len++;
+            digits = new byte[len];
         }
 
-        return firstPalindromeOfLength(len + 1);
-    }
+        digits[len - i - 1] = digits[i] = (byte) (digits[i] + 1);
 
-    private static byte[] firstPalindromeOfLength(int len) {
-        byte[] result = new byte[len];
-        result[result.length - 1] = result[0] = 1;
-        return result;
+        return digits;
     }
 
     private static boolean isPrime(int value) {
