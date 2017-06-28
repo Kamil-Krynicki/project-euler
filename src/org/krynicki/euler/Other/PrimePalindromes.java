@@ -1,12 +1,14 @@
 package org.krynicki.euler.Other;
 
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Threads;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -24,39 +26,13 @@ public class PrimePalindromes {
         System.out.println(t2 - t1);
     }
 
-    @Benchmark()
-    @BenchmarkMode(value = Mode.AverageTime)
-    @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
-    @Threads(value = 4)
-    public void generationDeclarative() {
-        find(MAX_VAL);
-    }
-
-    @Benchmark()
-    @BenchmarkMode(value = Mode.AverageTime)
-    @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
-    @Threads(value = 4)
-    public void generationFunctional() {
-        findFunctional(MAX_VAL);
-    }
-
-    @Test
-    public void testDeclarative() {
-        Assert.assertEquals(find(MAX_VAL), 159323951);
-    }
-
-    @Test
-    public void testFunctional() {
-        Assert.assertEquals(findFunctional(MAX_VAL), 159323951);
-    }
-
     private static int find(int count) {
-        byte[] digits = {2};
-        int found = 0;
+        byte[] digits = {3};
+        int found = 1;
         int result = 0;
 
         while (found < count) {
-            if (isPrime(result = toInt(digits)))
+            if (isOdd(digits) && isPrime(result = toInt(digits)))
                 found++;
 
             digits = nextPalindrome(digits);
@@ -67,6 +43,7 @@ public class PrimePalindromes {
 
     private static int findFunctional(int count) {
         return Stream.iterate(new byte[]{2}, PrimePalindromes::nextPalindrome)
+                .filter(PrimePalindromes::isOdd)
                 .mapToInt(PrimePalindromes::toInt)
                 .filter(PrimePalindromes::isPrime)
                 .limit(count)
@@ -93,10 +70,18 @@ public class PrimePalindromes {
         return digits;
     }
 
+    private static boolean isOdd(byte[] digits) {
+        return digits[digits.length - 1] % 2 != 0;
+    }
+
     private static boolean isPrime(int value) {
-        for (int i = 2; i <= Math.sqrt(value); i++)
+        if (value % 2 == 0)
+            return false;
+
+        for (int i = 3; i <= Math.sqrt(value); i++)
             if (value % i == 0)
                 return false;
+
         return true;
     }
 
@@ -111,5 +96,31 @@ public class PrimePalindromes {
         result /= 10;
 
         return result;
+    }
+
+    @Benchmark()
+    @BenchmarkMode(value = Mode.AverageTime)
+    @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
+    @Threads(value = 4)
+    public void generationDeclarative() {
+        find(MAX_VAL);
+    }
+
+    @Benchmark()
+    @BenchmarkMode(value = Mode.AverageTime)
+    @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
+    @Threads(value = 4)
+    public void generationFunctional() {
+        findFunctional(MAX_VAL);
+    }
+
+    @Test
+    public void testDeclarative() {
+        Assert.assertEquals(find(MAX_VAL), 159323951);
+    }
+
+    @Test
+    public void testFunctional() {
+        Assert.assertEquals(findFunctional(MAX_VAL), 159323951);
     }
 }
