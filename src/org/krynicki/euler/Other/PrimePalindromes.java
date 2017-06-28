@@ -32,8 +32,10 @@ public class PrimePalindromes {
         int result = 0;
 
         while (found < count) {
-            if (isOdd(digits) && isPrime(result = toInt(digits)))
+            if (isOdd(digits) && isPrime(result = toInt(digits))) {
                 found++;
+                //System.out.println(found +" : "+result);
+            }
 
             digits = nextPalindrome(digits);
         }
@@ -78,7 +80,7 @@ public class PrimePalindromes {
         if (value % 2 == 0)
             return false;
 
-        for (int i = 3; i <= Math.sqrt(value); i++)
+        for (int i = 3; i <= Math.sqrt(value); i+=2)
             if (value % i == 0)
                 return false;
 
